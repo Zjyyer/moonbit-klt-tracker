@@ -5,6 +5,12 @@ test "GrayFrame rejects pixels whose length differs from its dimensions" {
 }
 
 ///|
+test "GrayFrame rejects dimensions whose pixel count would overflow" {
+  let huge_dimension : Int = 2000000000
+  assert_true(GrayFrame::new(huge_dimension, 2, []) is Err(InvalidDimensions))
+}
+
+///|
 test "GrayFrame bilinear sampling returns integer pixel values" {
   let pixels : Array[Byte] = [0, 10, 20, 30]
   let frame = match GrayFrame::new(2, 2, pixels) {

@@ -30,3 +30,15 @@ test "solve_symmetric_2x2 rejects singular and near-singular matrices" {
     solve_symmetric_2x2(1.0, 1.0, 1.0 + 0.000000000001, rhs) is Err(_),
   )
 }
+
+///|
+test "solve_symmetric_2x2 rejects non-finite coefficients and right-hand sides" {
+  let finite_rhs : Vec2 = { x: 1.0, y: 1.0 }
+  let non_finite_rhs : Vec2 = { x: 0.0 / 0.0, y: 1.0 }
+  assert_true(
+    solve_symmetric_2x2(1.0 / 0.0, 0.0, 1.0, finite_rhs) is Err(NonFiniteInput),
+  )
+  assert_true(
+    solve_symmetric_2x2(1.0, 0.0, 1.0, non_finite_rhs) is Err(NonFiniteInput),
+  )
+}

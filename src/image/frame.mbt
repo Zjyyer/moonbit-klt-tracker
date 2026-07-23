@@ -14,6 +14,10 @@ pub(all) struct GrayFrame {
 } derive(Debug)
 
 ///|
+/// The largest representable positive `Int` on supported MoonBit targets.
+const MAX_INT : Int = 2147483647
+
+///|
 /// Constructs a frame when its dimensions and pixel count agree.
 pub fn GrayFrame::new(
   width : Int,
@@ -21,6 +25,8 @@ pub fn GrayFrame::new(
   pixels : Array[Byte],
 ) -> Result[GrayFrame, FrameError] {
   if width <= 0 || height <= 0 {
+    Err(InvalidDimensions)
+  } else if width > MAX_INT / height {
     Err(InvalidDimensions)
   } else {
     let expected = width * height
