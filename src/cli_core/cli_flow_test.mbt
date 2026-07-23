@@ -31,6 +31,7 @@ fn report(
 
 ///|
 test "manifest preserves the listed frame order" {
+  // Frame order is part of the CLI manifest contract.
   let manifest = parse_manifest(
     "{\"frames\":[{\"index\":4,\"width\":2,\"height\":2,\"pixels\":[1,2,3,4]},{\"index\":1,\"width\":2,\"height\":2,\"pixels\":[5,6,7,8]}]}",
   ).unwrap()

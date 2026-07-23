@@ -1,5 +1,6 @@
 ///|
 pub fn render_report(document : @formats.TrajectoryDocument) -> String {
+  // Summaries deliberately prioritize rejected measurements over lost state.
   let mut tracked = 0
   let mut lost = 0
   let mut rejected = 0
