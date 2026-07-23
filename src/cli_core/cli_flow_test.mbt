@@ -183,8 +183,8 @@ test "native CLI flow reads a manifest and writes only requested result paths" {
   ])
   assert_eq(exit_code, 0)
   assert_eq(
-    @fs.read_file_to_string(output),
-    @fs.read_file_to_string("tests/fixtures/translation/expected.json"),
+    @fs.read_file_to_bytes(output),
+    @fs.read_file_to_bytes("tests/fixtures/translation/expected.json"),
   )
   @fs.remove_file(output)
 }
@@ -200,8 +200,8 @@ test "native CLI flow matches the checked-in occlusion golden output" {
   ])
   assert_eq(exit_code, 0)
   assert_eq(
-    @fs.read_file_to_string(output),
-    @fs.read_file_to_string("tests/fixtures/occlusion/expected.json"),
+    @fs.read_file_to_bytes(output),
+    @fs.read_file_to_bytes("tests/fixtures/occlusion/expected.json"),
   )
   @fs.remove_file(output)
 }
