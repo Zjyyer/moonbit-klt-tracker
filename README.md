@@ -2,15 +2,42 @@
 
 [简体中文](README.zh-CN.md)
 
-`moonbit-klt-tracker` is a MoonBit-native, deterministic sparse feature-tracking library for ordered grayscale frame buffers. Version 1 provides checked grayscale frames, image pyramids and gradients, Shi–Tomasi feature detection, pyramidal Lucas–Kanade (KLT) tracking, quality diagnostics, track lifecycle management, deterministic JSON/CSV exports, and `detect`, `track`, and `inspect` command-line workflows.
+`moonbit-klt-tracker` is a MoonBit-native, deterministic sparse feature-tracking library for ordered grayscale frame buffers. It provides checked grayscale frames, image pyramids and gradients, Shi-Tomasi feature detection, pyramidal Lucas-Kanade (KLT) tracking, forward-backward validation, track lifecycle management, and deterministic JSON/CSV exports.
 
-## Scope
+## Quick start
 
-Version 1 deliberately does not include image or video codecs, camera capture, GPU acceleration, deep-learning models, dense optical flow, an interactive GUI, or general-purpose computer-vision primitives. Supply decoded grayscale bytes from your own application or an external adapter.
+Install MoonBit, then run the checked-in fixture through the native CLI:
 
-## Status
+```sh
+moon run src/cli -- detect --manifest tests/fixtures/occlusion/manifest.json
+moon run src/cli -- inspect --manifest tests/fixtures/occlusion/manifest.json
+moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --json trajectory.json --csv trajectory.csv
+```
 
-The project is being built incrementally. Public APIs and runnable examples will be documented as their packages land.
+`detect` prints the detected-track count. `inspect` prints a deterministic report. `track` requires at least one of `--json` or `--csv` and writes only the requested result paths. All commands require `--manifest`; duplicate flags, unknown flags, and output flags on `detect` or `inspect` are usage errors. The manifest is JSON with a `frames` array whose frames share dimensions and contain byte-valued grayscale `pixels`; see the fixtures above for complete inputs.
+
+The CLI's parsing, file boundary, golden output, and the fixture workflows are tested in `src/cli/cli_test.mbt`. The CI workflow runs those tests through `moon test --target all --deny-warn`.
+
+## Library overview
+
+The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes reports; and `cli` owns filesystem access. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
+
+## Scope and limitations
+
+This is sparse, short-range point tracking, not a video or image-processing runtime. Callers supply decoded grayscale frames. The implementation uses a local translation model with fixed source gradients and assumes brightness constancy within each tracking window. It can reject textureless, ill-conditioned, out-of-bounds, or forward-backward-inconsistent observations; it does not model affine or projective motion, illumination changes, occlusion semantics, rolling shutter, camera calibration, dense flow, GPU execution, codecs, capture devices, deep-learning models, or a GUI.
+
+## Development and verification
+
+```sh
+node tools/verify-docs.mjs
+moon fmt --check
+moon check --target all --deny-warn
+moon test --target all --deny-warn
+moon info
+git diff --exit-code
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), the [change log](CHANGELOG.md), [performance evidence](docs/performance.md), [references](docs/references.md), [provenance](docs/provenance.md), and the [OSC 2026 self-audit](docs/osc2026-self-audit.md).
 
 ## License
 
