@@ -52,6 +52,34 @@ fn observation(
 }
 
 ///|
+fn neutral_rejection() -> KltObservation {
+  observation(
+    @math.Vec2::{ x: 0.0, y: 0.0 },
+    @math.Vec2::{ x: 0.0, y: 0.0 },
+    0.0,
+    0.0,
+    0,
+    Rejected,
+  )
+}
+
+///|
+fn candidate_displacement(
+  displacement : @math.Vec2,
+  update : @math.Vec2,
+) -> @math.Vec2? {
+  let candidate : @math.Vec2 = {
+    x: displacement.x - update.x,
+    y: displacement.y - update.y,
+  }
+  if is_finite(candidate.x) && is_finite(candidate.y) {
+    Some(candidate)
+  } else {
+    None
+  }
+}
+
+///|
 /// Tracks `seed` from `previous` into `next` using fixed source gradients.
 ///
 /// This deterministic inverse-compositional-style iteration rejects windows
@@ -67,8 +95,12 @@ pub fn track_single_level(
   config : KltConfig,
 ) -> KltObservation {
   let source = seed.position
-  if !config_is_valid(config) || !is_finite(initial.x) || !is_finite(initial.y) {
-    return observation(source, initial, 0.0, 0.0, 0, Rejected)
+  if !config_is_valid(config) ||
+    !is_finite(source.x) ||
+    !is_finite(source.y) ||
+    !is_finite(initial.x) ||
+    !is_finite(initial.y) {
+    return neutral_rejection()
   }
   let radius = config.window_size / 2
   if !window_fits(previous.width, previous.height, source, radius) ||
@@ -159,10 +191,18 @@ pub fn track_single_level(
                 status = Rejected
                 active = false
               } else {
-                displacement = displacement.add(update.scale(-1.0))
-                iterations = iterations + 1
-                if update_norm <= config.update_epsilon {
-                  active = false
+                match candidate_displacement(displacement, update) {
+                  Some(candidate) => {
+                    displacement = candidate
+                    iterations = iterations + 1
+                    if update_norm <= config.update_epsilon {
+                      active = false
+                    }
+                  }
+                  None => {
+                    status = Rejected
+                    active = false
+                  }
                 }
               }
             }

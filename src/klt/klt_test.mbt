@@ -46,6 +46,53 @@ fn seed_at(x : Double, y : Double) -> @features.SeedPoint {
 }
 
 ///|
+fn assert_finite_neutral_rejection(observation : KltObservation) -> Unit raise {
+  assert_eq(observation.status, Rejected)
+  assert_true(!observation.source.x.is_nan() && !observation.source.x.is_inf())
+  assert_true(!observation.source.y.is_nan() && !observation.source.y.is_inf())
+  assert_true(
+    !observation.displacement.x.is_nan() && !observation.displacement.x.is_inf(),
+  )
+  assert_true(
+    !observation.displacement.y.is_nan() && !observation.displacement.y.is_inf(),
+  )
+  assert_true(!observation.target.x.is_nan() && !observation.target.x.is_inf())
+  assert_true(!observation.target.y.is_nan() && !observation.target.y.is_inf())
+  assert_eq(observation.displacement.x, 0.0)
+  assert_eq(observation.displacement.y, 0.0)
+  assert_eq(observation.target.x, 0.0)
+  assert_eq(observation.target.y, 0.0)
+}
+
+///|
+test "single-level KLT returns a finite neutral rejection for non-finite seed coordinates" {
+  let previous = textured_frame()
+  let observation = track_single_level(
+    previous,
+    previous,
+    @image.GradientFrame::from_frame(previous),
+    seed_at(0.0 / 0.0, 5.0),
+    @math.Vec2::{ x: 0.0, y: 0.0 },
+    solver_config(),
+  )
+  assert_finite_neutral_rejection(observation)
+}
+
+///|
+test "single-level KLT returns a finite neutral rejection for non-finite initial displacement" {
+  let previous = textured_frame()
+  let observation = track_single_level(
+    previous,
+    previous,
+    @image.GradientFrame::from_frame(previous),
+    seed_at(5.0, 5.0),
+    @math.Vec2::{ x: 1.0 / 0.0, y: 0.0 },
+    solver_config(),
+  )
+  assert_finite_neutral_rejection(observation)
+}
+
+///|
 test "single-level KLT recovers a one-pixel right translation within 0.01 pixels" {
   let previous = textured_frame()
   let next = shifted_right(previous)
