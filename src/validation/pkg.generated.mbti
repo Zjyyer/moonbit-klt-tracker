@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zjyyer/moonbit-klt-tracker/src/validation"
+
+import {
+  "zjyyer/moonbit-klt-tracker/src/features",
+  "zjyyer/moonbit-klt-tracker/src/image",
+  "zjyyer/moonbit-klt-tracker/src/klt",
+}
+
+// Values
+pub fn validate_forward_backward(@image.Pyramid, @image.Pyramid, @features.SeedPoint, @klt.KltObservation, @klt.KltConfig) -> @klt.KltObservation
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

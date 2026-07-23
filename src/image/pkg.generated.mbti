@@ -37,6 +37,7 @@ pub(all) struct Pyramid {
 } derive(@debug.Debug)
 pub fn Pyramid::build(GrayFrame, Int) -> Result[Self, PyramidError]
 pub fn Pyramid::level(Self, Int) -> GrayFrame
+pub fn Pyramid::level_count(Self) -> Int
 
 pub(all) enum PyramidError {
   InvalidLevelCount

@@ -9,6 +9,8 @@ import {
 }
 
 // Values
+pub fn track_pyramidal(@image.Pyramid, @image.Pyramid, @features.SeedPoint, KltConfig) -> KltObservation
+
 pub fn track_single_level(@image.GrayFrame, @image.GrayFrame, @image.GradientFrame, @features.SeedPoint, @math.Vec2, KltConfig) -> KltObservation
 
 // Errors

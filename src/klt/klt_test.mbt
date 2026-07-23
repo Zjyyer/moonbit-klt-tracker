@@ -31,6 +31,29 @@ fn shifted_right(frame : @image.GrayFrame) -> @image.GrayFrame {
 }
 
 ///|
+fn shifted_right_by(frame : @image.GrayFrame, amount : Int) -> @image.GrayFrame {
+  let pixels : Array[Byte] = []
+  for y in 0..<frame.height {
+    for x in 0..<frame.width {
+      let source_x = if x < amount { 0 } else { x - amount }
+      pixels.push(frame.pixels[y * frame.width + source_x])
+    }
+  }
+  frame_or_fail(frame.width, frame.height, pixels)
+}
+
+///|
+fn large_textured_frame() -> @image.GrayFrame {
+  let pixels : Array[Byte] = []
+  for y in 0..<64 {
+    for x in 0..<64 {
+      pixels.push(((x * 13 + y * 29 + x * y * 3) % 200 + 20).to_byte())
+    }
+  }
+  frame_or_fail(64, 64, pixels)
+}
+
+///|
 fn solver_config() -> KltConfig {
   {
     window_size: 5,
@@ -138,4 +161,31 @@ test "single-level KLT reports out-of-bounds for a target window outside the fra
   )
   assert_eq(observation.status, OutOfBounds)
   assert_true(observation.minimum_eigenvalue > 1.0)
+}
+
+///|
+test "pyramidal KLT recovers a six-pixel right translation over three levels" {
+  let previous = large_textured_frame()
+  let next = shifted_right_by(previous, 6)
+  let single_level = track_single_level(
+    previous,
+    next,
+    @image.GradientFrame::from_frame(previous),
+    seed_at(32.0, 32.0),
+    @math.Vec2::{ x: 0.0, y: 0.0 },
+    solver_config(),
+  )
+  assert_true((single_level.displacement.x - 6.0).abs() > 0.5)
+  let previous_pyramid = @image.Pyramid::build(previous, 3).unwrap()
+  let next_pyramid = @image.Pyramid::build(next, 3).unwrap()
+  let observation = track_pyramidal(
+    previous_pyramid,
+    next_pyramid,
+    seed_at(32.0, 32.0),
+    solver_config(),
+  )
+  assert_eq(observation.status, Tracked)
+  assert_true((observation.displacement.x - 6.0).abs() <= 0.1)
+  assert_true(observation.displacement.y.abs() <= 0.1)
+  assert_eq(observation.pyramid_level, 0)
 }

@@ -45,6 +45,12 @@ pub fn Pyramid::level(self : Pyramid, index : Int) -> GrayFrame {
 }
 
 ///|
+/// Returns the number of layers, including the full-resolution level.
+pub fn Pyramid::level_count(self : Pyramid) -> Int {
+  self.levels.length()
+}
+
+///|
 fn gaussian_weight(index : Int) -> Int {
   match index {
     0 => 1
