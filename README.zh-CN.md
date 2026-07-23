@@ -16,11 +16,11 @@ moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --js
 
 `detect` 输出检测到的轨迹数量，`inspect` 输出确定性的报告；`track` 至少需要 `--json` 或 `--csv` 之一，并且只写入请求的结果路径。所有命令都需要 `--manifest`。重复或未知的标志，以及向 `detect` 或 `inspect` 传入输出标志，都会产生用法错误。清单是包含 `frames` 数组的 JSON；每帧尺寸必须一致，`pixels` 必须是字节值。完整输入见以上夹具。
 
-CLI 解析、文件边界、黄金输出和夹具工作流由 `src/cli/cli_test.mbt` 覆盖；CI 通过 `moon test --target all --deny-warn` 执行这些测试。
+CLI 解析、文件边界、黄金输出和夹具工作流由 `src/cli_core/cli_flow_test.mbt` 覆盖；CI 通过 `moon test --target all --deny-warn` 执行这些测试。
 
 ## 库概览
 
-公共包采用分层设计：`math` 和 `image` 为 `features` 提供基础；`klt` 与 `validation` 建立在其上；`tracking` 管理生命周期；`formats` 序列化报告；`cli` 负责文件系统访问。API 名称和错误行为见[架构说明](docs/architecture.md)与[算法说明](docs/algorithm.md)。
+公共包采用分层设计：`math` 和 `image` 为 `features` 提供基础；`klt` 与 `validation` 建立在其上；`tracking` 管理生命周期；`formats` 序列化报告；`cli_core` 负责与目标无关的命令流程；原生 `cli` 可执行包负责进程参数与退出状态。API 名称和错误行为见[架构说明](docs/architecture.md)与[算法说明](docs/algorithm.md)。
 
 ## 范围与限制
 

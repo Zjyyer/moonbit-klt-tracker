@@ -17,6 +17,7 @@ jobs:
       - uses: hustcer/setup-moonbit@v1
         with:
           version: "0.1.20260713"
+      - run: node --test tools/verify-docs.test.mjs
       - run: node tools/verify-docs.mjs
       - run: moon fmt --check
       - run: moon check --target all --deny-warn

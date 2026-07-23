@@ -158,8 +158,17 @@ test "an occluded forward candidate is rejected by the engine forward-backward c
       suppression_radius: 3.0,
     },
   }
-  let tracker = Tracker::start(config, previous, [seed_at(32.0, 32.0)]).unwrap()
-  let report = tracker.step(occlude_center(previous)).unwrap()
+  let next = occlude_center(previous)
+  let seed = seed_at(32.0, 32.0)
+  let forward = @klt.track_pyramidal(
+    @image.Pyramid::build(previous, config.pyramid_levels).unwrap(),
+    @image.Pyramid::build(next, config.pyramid_levels).unwrap(),
+    seed,
+    config.klt_config,
+  )
+  assert_eq(forward.status, @klt.Tracked)
+  let tracker = Tracker::start(config, previous, [seed]).unwrap()
+  let report = tracker.step(next).unwrap()
   assert_eq(report.observations.length(), 1)
   assert_eq(report.observations[0].observation.status, @klt.Rejected)
   assert_eq(report.observations[0].state, Lost)

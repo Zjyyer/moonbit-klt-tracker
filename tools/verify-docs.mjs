@@ -2,10 +2,10 @@
 /** Verify repository documentation claims against checked-in project evidence. */
 
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const defaultRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const readmes = ["README.md", "README.zh-CN.md"];
 const requiredDocuments = [
   "docs/architecture.md",
@@ -20,7 +20,8 @@ const requiredDocuments = [
 const requiredAuditEvidence = [
   "License: Apache-2.0",
   "Default branch: main",
-  "Source scale command: moon info",
+  "Remote default branch: deferred until publish",
+  "Source scale command: `scripts/line-count.ps1`",
   "History count command: git rev-list --count HEAD",
   "CI workflow: .github/workflows/check.yml",
   "Generated-interface gate: git diff --exit-code",
@@ -31,50 +32,66 @@ function fail(message) {
   process.exit(1);
 }
 
-function checkedInFile(target) {
-  if (/^(https?:|#|mailto:)/.test(target)) return true;
-  const path = resolve(root, target.split("#", 1)[0]);
+function isInsideRoot(root, path) {
+  const fromRoot = relative(root, path);
+  return (
+    fromRoot === "" ||
+    (!fromRoot.startsWith(`..${sep}`) && fromRoot !== ".." && !isAbsolute(fromRoot))
+  );
+}
+
+export function checkedInFile(root, target) {
+  if (/^(https?:|#|mailto:)/i.test(target)) return true;
+  const path = resolve(root, target.split(/[?#]/, 1)[0]);
+  if (!isInsideRoot(root, path)) return false;
   return existsSync(path) && statSync(path).isFile();
 }
 
-for (const document of requiredDocuments) {
-  if (!checkedInFile(document)) fail(`required document is missing: ${document}`);
-}
+export function verifyDocs(root = defaultRoot) {
+  for (const document of requiredDocuments) {
+    if (!checkedInFile(root, document)) fail(`required document is missing: ${document}`);
+  }
 
-const commandSource = readFileSync(resolve(root, "src/cli/main.mbt"), "utf8");
-const acceptedCommands = new Set(
-  [...commandSource.matchAll(/command != "([a-z]+)"/g)].map((match) => match[1]),
-);
-if (acceptedCommands.size === 0) {
-  fail("could not discover accepted CLI commands from src/cli/main.mbt");
-}
+  const commandSourcePath = "src/cli_core/command.mbt";
+  const commandSource = readFileSync(resolve(root, commandSourcePath), "utf8");
+  const acceptedCommands = new Set(
+    [...commandSource.matchAll(/command != "([a-z]+)"/g)].map((match) => match[1]),
+  );
+  if (acceptedCommands.size === 0) {
+    fail(`could not discover accepted CLI commands from ${commandSourcePath}`);
+  }
 
-for (const readme of readmes) {
-  const contents = readFileSync(resolve(root, readme), "utf8");
-  for (const match of contents.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
-    if (!checkedInFile(match[1])) {
-      fail(`${readme} links to a missing checked-in file: ${match[1]}`);
+  for (const readme of readmes) {
+    const contents = readFileSync(resolve(root, readme), "utf8");
+    for (const match of contents.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+      if (!checkedInFile(root, match[1])) {
+        fail(`${readme} links to a missing checked-in file: ${match[1]}`);
+      }
+    }
+    const documentedCommands = new Set(
+      [...contents.matchAll(/moon run src\/cli(?: --)? ([a-z]+)/g)].map((match) => match[1]),
+    );
+    if (
+      documentedCommands.size !== acceptedCommands.size ||
+      [...acceptedCommands].some((command) => !documentedCommands.has(command))
+    ) {
+      fail(
+        `${readme} documents CLI commands ${JSON.stringify([...documentedCommands].sort())}, ` +
+          `but the CLI accepts ${JSON.stringify([...acceptedCommands].sort())}`,
+      );
     }
   }
-  const documentedCommands = new Set(
-    [...contents.matchAll(/moon run src\/cli(?: --)? ([a-z]+)/g)].map((match) => match[1]),
-  );
-  if (
-    documentedCommands.size !== acceptedCommands.size ||
-    [...acceptedCommands].some((command) => !documentedCommands.has(command))
-  ) {
-    fail(
-      `${readme} documents CLI commands ${JSON.stringify([...documentedCommands].sort())}, ` +
-        `but the CLI accepts ${JSON.stringify([...acceptedCommands].sort())}`,
-    );
+
+  const audit = readFileSync(resolve(root, "docs/osc2026-self-audit.md"), "utf8");
+  for (const evidence of requiredAuditEvidence) {
+    if (!audit.includes(evidence)) {
+      fail(`OSC audit does not include required evidence: ${evidence}`);
+    }
   }
+
+  console.log("documentation verification passed");
 }
 
-const audit = readFileSync(resolve(root, "docs/osc2026-self-audit.md"), "utf8");
-for (const evidence of requiredAuditEvidence) {
-  if (!audit.includes(evidence)) {
-    fail(`OSC audit does not include required evidence: ${evidence}`);
-  }
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  verifyDocs();
 }
-
-console.log("documentation verification passed");

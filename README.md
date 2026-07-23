@@ -16,11 +16,11 @@ moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --js
 
 `detect` prints the detected-track count. `inspect` prints a deterministic report. `track` requires at least one of `--json` or `--csv` and writes only the requested result paths. All commands require `--manifest`; duplicate flags, unknown flags, and output flags on `detect` or `inspect` are usage errors. The manifest is JSON with a `frames` array whose frames share dimensions and contain byte-valued grayscale `pixels`; see the fixtures above for complete inputs.
 
-The CLI's parsing, file boundary, golden output, and the fixture workflows are tested in `src/cli/cli_test.mbt`. The CI workflow runs those tests through `moon test --target all --deny-warn`.
+The CLI's parsing, file boundary, golden output, and fixture workflows are tested in `src/cli_core/cli_flow_test.mbt`. The CI workflow runs those tests through `moon test --target all --deny-warn`.
 
 ## Library overview
 
-The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes reports; and `cli` owns filesystem access. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
+The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes reports; `cli_core` owns target-independent command flow; and the native `cli` executable owns process arguments and exit status. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
 
 ## Scope and limitations
 
@@ -29,6 +29,7 @@ This is sparse, short-range point tracking, not a video or image-processing runt
 ## Development and verification
 
 ```sh
+node --test tools/verify-docs.test.mjs
 node tools/verify-docs.mjs
 moon fmt --check
 moon check --target all --deny-warn
@@ -36,6 +37,8 @@ moon test --target all --deny-warn
 moon info
 git diff --exit-code
 ```
+
+For the OSC candidate-repository checks, switch to the locally checked-out `main` branch and run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/osc-audit.ps1`. It reports the tracked MoonBit source inventory, one recorded author identity, history count, required repository files, and the same quality gates. Remote default-branch verification is intentionally separate and is performed only after publishing with `-CheckRemoteDefault`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), the [change log](CHANGELOG.md), [performance evidence](docs/performance.md), [references](docs/references.md), [provenance](docs/provenance.md), and the [OSC 2026 self-audit](docs/osc2026-self-audit.md).
 
