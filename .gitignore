@@ -1,1 +1,7 @@
+_build/
+.moon/
+coverage/
+coverage.lcov
+tests/fixtures/local/
+tests/fixtures/output/
 .worktrees/
