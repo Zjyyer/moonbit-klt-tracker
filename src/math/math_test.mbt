@@ -42,3 +42,16 @@ test "solve_symmetric_2x2 rejects non-finite coefficients and right-hand sides" 
     solve_symmetric_2x2(1.0, 0.0, 1.0, non_finite_rhs) is Err(NonFiniteInput),
   )
 }
+
+///|
+test "solve_symmetric_2x2 rejects non-finite intermediate computations" {
+  let unit_rhs : Vec2 = { x: 1.0, y: 1.0 }
+  let large_y_rhs : Vec2 = { x: 0.0, y: 1.0e308 }
+  assert_true(
+    solve_symmetric_2x2(1.0e308, 0.0, 1.0e308, unit_rhs) is Err(NonFiniteResult),
+  )
+  assert_true(
+    solve_symmetric_2x2(1.0e308, 0.0, 1.0e-308, large_y_rhs)
+    is Err(NonFiniteResult),
+  )
+}

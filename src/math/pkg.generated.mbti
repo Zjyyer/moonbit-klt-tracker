@@ -14,6 +14,7 @@ pub fn solve_symmetric_2x2(Double, Double, Double, Vec2) -> Result[Vec2, SolveEr
 pub(all) enum SolveError {
   Singular
   NonFiniteInput
+  NonFiniteResult
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Vec2 {

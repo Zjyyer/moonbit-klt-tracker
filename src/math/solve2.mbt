@@ -3,6 +3,7 @@
 pub(all) enum SolveError {
   Singular
   NonFiniteInput
+  NonFiniteResult
 } derive(Debug, Eq)
 
 ///|
@@ -30,13 +31,18 @@ pub fn solve_symmetric_2x2(
     Err(NonFiniteInput)
   } else {
     let determinant = a * c - b * b
-    if determinant.abs() <= SOLVE_DETERMINANT_EPSILON {
+    if !is_finite(determinant) {
+      Err(NonFiniteResult)
+    } else if determinant.abs() <= SOLVE_DETERMINANT_EPSILON {
       Err(Singular)
     } else {
-      Ok({
-        x: (c * rhs.x - b * rhs.y) / determinant,
-        y: (a * rhs.y - b * rhs.x) / determinant,
-      })
+      let x = (c * rhs.x - b * rhs.y) / determinant
+      let y = (a * rhs.y - b * rhs.x) / determinant
+      if !is_finite(x) || !is_finite(y) {
+        Err(NonFiniteResult)
+      } else {
+        Ok({ x, y })
+      }
     }
   }
 }
