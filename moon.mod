@@ -19,3 +19,7 @@ keywords = [
 preferred_target = "wasm-gc"
 
 description = "Deterministic sparse KLT feature tracking for grayscale frame buffers."
+
+import {
+  "moonbitlang/x@0.4.46",
+}
