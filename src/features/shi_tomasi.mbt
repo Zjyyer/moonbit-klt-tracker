@@ -1,12 +1,17 @@
 ///|
+fn is_finite(value : Double) -> Bool {
+  !value.is_nan() && (value == 0.0 || value / 2.0 != value)
+}
+
+///|
 fn valid_config(config : FeatureConfig) -> FeatureError? {
   if config.window_size <= 0 || config.window_size % 2 == 0 {
     Some(InvalidWindowSize)
-  } else if config.minimum_score.is_nan() || config.minimum_score < 0.0 {
+  } else if !is_finite(config.minimum_score) || config.minimum_score < 0.0 {
     Some(InvalidMinimumScore)
   } else if config.max_features < 0 {
     Some(InvalidMaximumFeatures)
-  } else if config.suppression_radius.is_nan() ||
+  } else if !is_finite(config.suppression_radius) ||
     config.suppression_radius < 0.0 {
     Some(InvalidSuppressionRadius)
   } else {
