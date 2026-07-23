@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zjyyer/moonbit-klt-tracker/src/features"
+
+import {
+  "moonbitlang/core/debug",
+  "zjyyer/moonbit-klt-tracker/src/image",
+  "zjyyer/moonbit-klt-tracker/src/math",
+}
+
+// Values
+pub fn detect_shi_tomasi(@image.GrayFrame, FeatureConfig) -> Result[Array[SeedPoint], FeatureError]
+
+pub fn validate_seeds(@image.GrayFrame, Array[SeedPoint]) -> Result[Array[SeedPoint], FeatureError]
+
+// Errors
+
+// Types and methods
+pub(all) struct FeatureConfig {
+  window_size : Int
+  minimum_score : Double
+  max_features : Int
+  suppression_radius : Double
+} derive(@debug.Debug)
+
+pub(all) enum FeatureError {
+  InvalidWindowSize
+  InvalidMinimumScore
+  InvalidMaximumFeatures
+  InvalidSuppressionRadius
+  FrameTooSmall
+  SeedOutsideFrame(index~ : Int)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SeedPoint {
+  position : @math.Vec2
+  score : Double
+} derive(@debug.Debug)
+
+// Type aliases
+
+// Traits
+
