@@ -48,27 +48,21 @@
 **Interfaces:**
 - Produces the `zjyyer/moonbit-klt-tracker` module root for every later package.
 
-- [ ] **Step 1: Create a minimal module and a failing smoke test package**
+- [ ] **Step 1: Create a minimal compiling module**
 
-Create a root module named `zjyyer/moonbit-klt-tracker` with Apache-2.0 metadata and a `src/smoke` package containing a test that imports a not-yet-created `src/image` API.
+Create a root module named `zjyyer/moonbit-klt-tracker` with Apache-2.0 metadata and a minimal public root package that compiles without depending on the later image package.
 
-- [ ] **Step 2: Run the smoke test to verify it fails**
-
-Run: `moon test src/smoke`
-
-Expected: failure resolving the image package.
-
-- [ ] **Step 3: Add repository hygiene and CI**
+- [ ] **Step 2: Add repository hygiene and CI**
 
 Add a root `.gitignore` for `_build/`, `.moon/`, coverage output, and local fixture output. Add Apache-2.0 text, bilingual README stubs that describe actual v1 scope, and the cross-platform workflow from the community template with the global quality commands. Add the manual publish workflow without a credential value.
 
-- [ ] **Step 4: Run quality checks**
+- [ ] **Step 3: Run quality checks**
 
 Run: `moon fmt --check; moon check --target all`
 
-Expected: both pass after replacing the temporary import in the next task.
+Expected: both pass with the bootstrap package.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 Run: `git add moon.mod .gitignore .editorconfig LICENSE README.md README.zh-CN.md .github && git commit -m "chore: bootstrap MoonBit tracker module"`
 
