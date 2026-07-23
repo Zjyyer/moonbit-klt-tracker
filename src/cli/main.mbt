@@ -45,6 +45,23 @@ fn cli_result(
 }
 
 ///|
+fn print_summary(summary : String) -> Unit {
+  match summary.strip_suffix("\n") {
+    Some(line) => println(line)
+    None => println(summary)
+  }
+}
+
+///|
+pub fn command_args(process_args : Array[String]) -> Array[String] {
+  let args : Array[String] = []
+  for index in 1..<process_args.length() {
+    args.push(process_args[index])
+  }
+  args
+}
+
+///|
 pub fn parse_request(args : Array[String]) -> Result[CliRequest, CommandError] {
   if args.length() == 0 {
     return Err(Usage)
@@ -202,7 +219,7 @@ pub fn run_cli_from_files(args : Array[String]) -> Int {
   }
   let result = run_cli(args, manifest_text)
   if result.exit_code != 0 {
-    println(result.stdout)
+    print_summary(result.stdout)
     return result.exit_code
   }
   match (request.json_path, result.json) {
@@ -223,8 +240,16 @@ pub fn run_cli_from_files(args : Array[String]) -> Int {
     }
     _ => ()
   }
-  println(result.stdout)
+  print_summary(result.stdout)
   0
+}
+
+///|
+fn main {
+  let exit_code = run_cli_from_files(command_args(@sys.get_cli_args()))
+  if exit_code != 0 {
+    @sys.exit(exit_code)
+  }
 }
 
 ///|

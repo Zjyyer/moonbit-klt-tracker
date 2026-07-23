@@ -99,6 +99,14 @@ test "CLI parses required manifest and requested output paths" {
 }
 
 ///|
+test "entrypoint drops the process executable from command arguments" {
+  assert_eq(
+    command_args(["klt-tracker", "inspect", "--manifest", "frames.json"]),
+    ["inspect", "--manifest", "frames.json"],
+  )
+}
+
+///|
 test "CLI uses a distinct usage exit code for missing track outputs" {
   let result = run_cli(["track", "--manifest", "translation.json"], "{\"frames\":[]}")
   assert_eq(result.exit_code, 2)
