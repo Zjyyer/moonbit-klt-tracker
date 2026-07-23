@@ -23,7 +23,7 @@ For an OSC submission candidate, first check out local `main`, then run the repr
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/osc-audit.ps1
 ```
 
-The audit requires one actual Git author identity, at least 10 committed revisions, Apache-2.0, README, CI, and tracked MoonBit source counts. It runs the gate above unless `-SkipQualityGates` is supplied for development-only diagnostics. `scripts/line-count.ps1` reports its inclusion rule (tracked `*.mbt` only) and exclusions separately. A local `main` ref does not prove a hosting service's default branch: after publishing, run `scripts/osc-audit.ps1 -CheckRemoteDefault` to verify `origin/HEAD` points to `main`.
+The audit requires one actual Git author identity, at least 10 committed revisions, Apache-2.0, README, CI, and tracked MoonBit source counts. It runs the gate above unless `-SkipQualityGates` is supplied for development-only diagnostics. `scripts/line-count.ps1` reports its inclusion rule (tracked `*.mbt` only) and exclusions separately. A local `main` ref does not prove a hosting service's default branch: after publishing, run `scripts/osc-audit.ps1 -CheckRemoteDefault` to verify the remote `origin` HEAD resolves to `main`.
 
 ## Provenance
 
