@@ -1,0 +1,8 @@
+{
+  "import": [
+    "zjyyer/moonbit-klt-tracker/src/features",
+    "zjyyer/moonbit-klt-tracker/src/image",
+    "zjyyer/moonbit-klt-tracker/src/klt",
+    "zjyyer/moonbit-klt-tracker/src/math"
+  ]
+}
