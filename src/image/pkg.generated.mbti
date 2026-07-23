@@ -16,6 +16,14 @@ pub(all) enum FrameError {
   InvalidPixelLength(expected~ : Int, actual~ : Int)
 } derive(Eq, @debug.Debug)
 
+pub(all) struct GradientFrame {
+  width : Int
+  height : Int
+  gradients : Array[@math.Vec2]
+} derive(@debug.Debug)
+pub fn GradientFrame::at(Self, @math.Vec2) -> @math.Vec2?
+pub fn GradientFrame::from_frame(GrayFrame) -> Self
+
 pub(all) struct GrayFrame {
   width : Int
   height : Int
@@ -23,6 +31,17 @@ pub(all) struct GrayFrame {
 } derive(@debug.Debug)
 pub fn GrayFrame::new(Int, Int, Array[Byte]) -> Result[Self, FrameError]
 pub fn GrayFrame::sample_bilinear(Self, @math.Vec2) -> Double?
+
+pub(all) struct Pyramid {
+  levels : Array[GrayFrame]
+} derive(@debug.Debug)
+pub fn Pyramid::build(GrayFrame, Int) -> Result[Self, PyramidError]
+pub fn Pyramid::level(Self, Int) -> GrayFrame
+
+pub(all) enum PyramidError {
+  InvalidLevelCount
+  InsufficientDimensions(level~ : Int, width~ : Int, height~ : Int)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 
