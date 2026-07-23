@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zjyyer/moonbit-klt-tracker/src/klt"
+
+import {
+  "moonbitlang/core/debug",
+  "zjyyer/moonbit-klt-tracker/src/features",
+  "zjyyer/moonbit-klt-tracker/src/image",
+  "zjyyer/moonbit-klt-tracker/src/math",
+}
+
+// Values
+pub fn track_single_level(@image.GrayFrame, @image.GrayFrame, @image.GradientFrame, @features.SeedPoint, @math.Vec2, KltConfig) -> KltObservation
+
+// Errors
+
+// Types and methods
+pub(all) struct KltConfig {
+  window_size : Int
+  max_iterations : Int
+  update_epsilon : Double
+  minimum_eigenvalue : Double
+} derive(@debug.Debug)
+
+pub(all) struct KltObservation {
+  source : @math.Vec2
+  target : @math.Vec2
+  displacement : @math.Vec2
+  residual : Double
+  minimum_eigenvalue : Double
+  iterations : Int
+  pyramid_level : Int
+  forward_backward_error : Double
+  status : KltStatus
+} derive(@debug.Debug)
+
+pub(all) enum KltStatus {
+  Tracked
+  Rejected
+  OutOfBounds
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+
