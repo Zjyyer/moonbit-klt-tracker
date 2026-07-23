@@ -1,2 +1,2 @@
-src/**/pkg.generated.mbti whitespace=-blank-at-eof
+*.generated.mbti text eol=lf whitespace=-blank-at-eof
 tests/fixtures/**/*.json text eol=lf
