@@ -41,6 +41,41 @@ fn tracker_config(redetection_interval : Int, max_consecutive_losses : Int) -> T
 }
 
 ///|
+fn tracked_observation(target : @math.Vec2) -> @klt.KltObservation {
+  {
+    source: @math.Vec2::{ x: 32.0, y: 32.0 },
+    target,
+    displacement: @math.Vec2::{ x: 0.0, y: 0.0 },
+    residual: 0.0,
+    minimum_eigenvalue: 1.0,
+    iterations: 1,
+    pyramid_level: 0,
+    forward_backward_error: 0.0,
+    status: @klt.Tracked,
+  }
+}
+
+///|
+test "a tracked observation whose target is outside the current frame is not usable" {
+  assert_false(
+    observation_is_trackable(
+      textured_frame(),
+      tracked_observation(@math.Vec2::{ x: 64.0, y: 32.0 }),
+    ),
+  )
+}
+
+///|
+test "a tracked observation whose target is non-finite is not usable" {
+  assert_false(
+    observation_is_trackable(
+      textured_frame(),
+      tracked_observation(@math.Vec2::{ x: 1.0 / 0.0, y: 32.0 }),
+    ),
+  )
+}
+
+///|
 test "seed IDs start at zero and retain ascending order after a frame step" {
   let frame = textured_frame()
   let tracker = Tracker::start(

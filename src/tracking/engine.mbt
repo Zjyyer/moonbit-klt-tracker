@@ -117,6 +117,23 @@ fn prune_expired(tracks : Array[Track], max_consecutive_losses : Int) -> Array[T
 }
 
 ///|
+pub fn observation_is_trackable(
+  frame : @image.GrayFrame,
+  observation : @klt.KltObservation,
+) -> Bool {
+  let target = observation.target
+  observation.status == @klt.Tracked &&
+  !target.x.is_nan() &&
+  !target.x.is_inf() &&
+  !target.y.is_nan() &&
+  !target.y.is_inf() &&
+  target.x >= 0.0 &&
+  target.y >= 0.0 &&
+  target.x <= (frame.width - 1).to_double() &&
+  target.y <= (frame.height - 1).to_double()
+}
+
+///|
 pub fn Tracker::step(self : Tracker, frame : @image.GrayFrame) -> Result[FrameReport, TrackerError] {
   if !config_is_valid(self.config) {
     return Err(InvalidPyramidLevels)
@@ -137,7 +154,7 @@ pub fn Tracker::step(self : Tracker, frame : @image.GrayFrame) -> Result[FrameRe
     let mut state = track.state
     let mut losses = track.consecutive_losses
     let mut position = track.position
-    if observation.status == @klt.Tracked {
+    if observation_is_trackable(frame, observation) {
       state = Active
       losses = 0
       position = observation.target
