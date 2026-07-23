@@ -95,10 +95,16 @@ fn sorted_rows(document : TrajectoryDocument) -> Array[TrajectoryRow] {
     }
   }
   rows.sort_by(fn(left, right) {
-    if left.id != right.id {
-      left.id - right.id
+    if left.id < right.id {
+      -1
+    } else if left.id > right.id {
+      1
+    } else if left.frame < right.frame {
+      -1
+    } else if left.frame > right.frame {
+      1
     } else {
-      left.frame - right.frame
+      0
     }
   })
   rows

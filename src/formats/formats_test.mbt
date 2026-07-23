@@ -55,3 +55,18 @@ test "CSV export uses a stable header and is byte-identical across renderings" {
   assert_eq(export_csv(document), expected)
   assert_eq(export_csv(document), export_csv(document))
 }
+
+///|
+test "JSON export orders extreme track IDs and frames without integer overflow" {
+  let smallest = -2147483648
+  let largest = 2147483647
+  let document = TrajectoryDocument::new([track(largest), track(smallest)], [
+    report(largest, largest, 30.0, 31.0),
+    report(smallest, largest, 20.0, 21.0),
+    report(largest, smallest, 10.0, 11.0),
+  ])
+  assert_eq(
+    export_json(document),
+    "{\"schema_version\":\"1.0\",\"tracks\":[{\"id\":-2147483648,\"frame\":2147483647,\"state\":\"active\",\"x\":10,\"y\":11},{\"id\":2147483647,\"frame\":-2147483648,\"state\":\"active\",\"x\":20,\"y\":21},{\"id\":2147483647,\"frame\":2147483647,\"state\":\"active\",\"x\":30,\"y\":31}]}",
+  )
+}
