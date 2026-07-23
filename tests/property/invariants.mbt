@@ -5,6 +5,9 @@ const FIXTURE_WIDTH = 128
 const FIXTURE_HEIGHT = 96
 
 ///|
+const FIXTURE_SEED_COUNT = 8
+
+///|
 const LCG_MODULUS = 65536
 
 ///|
@@ -28,7 +31,7 @@ fn fixed_zero_motion_sequence() -> Array[@image.GrayFrame] {
 fn invariant_seeds(_frame : @image.GrayFrame) -> Array[@features.SeedPoint] {
   let seeds : Array[@features.SeedPoint] = []
   let mut state = 27182
-  for _ in 0..<8 {
+  for _ in 0..<FIXTURE_SEED_COUNT {
     state = lcg_next(state)
     let x = (20 + state % 88).to_double()
     state = lcg_next(state)
@@ -76,19 +79,18 @@ test "deterministic zero-motion tracking keeps public invariants" {
     let report = tracker.step(sequence[index]).unwrap()
     assert_true(report.frame_index > prior_frame_index)
     prior_frame_index = report.frame_index
-    for item in report.observations {
-      assert_true(item.id >= 0 && item.id < initial_ids.length())
-      assert_eq(item.id, initial_ids[item.id])
-      if item.state == @tracking.Active {
-        let target = item.observation.target
-        assert_false(target.x.is_nan() || target.x.is_inf())
-        assert_false(target.y.is_nan() || target.y.is_inf())
-        assert_true(target.x >= 0.0 && target.x <= 127.0)
-        assert_true(target.y >= 0.0 && target.y <= 95.0)
-        let displacement = item.observation.displacement
-        assert_true(displacement.x.abs() <= 0.01)
-        assert_true(displacement.y.abs() <= 0.01)
-      }
+    assert_eq(report.observations.length(), FIXTURE_SEED_COUNT)
+    for observation_index, item in report.observations {
+      assert_eq(item.id, initial_ids[observation_index])
+      assert_eq(item.state, @tracking.Active)
+      let target = item.observation.target
+      assert_false(target.x.is_nan() || target.x.is_inf())
+      assert_false(target.y.is_nan() || target.y.is_inf())
+      assert_true(target.x >= 0.0 && target.x <= 127.0)
+      assert_true(target.y >= 0.0 && target.y <= 95.0)
+      let displacement = item.observation.displacement
+      assert_true(displacement.x.abs() <= 0.01)
+      assert_true(displacement.y.abs() <= 0.01)
     }
   }
 }
