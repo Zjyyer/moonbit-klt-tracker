@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zjyyer/moonbit-klt-tracker/src/math"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn solve_symmetric_2x2(Double, Double, Double, Vec2) -> Result[Vec2, SolveError]
+
+// Errors
+
+// Types and methods
+pub(all) enum SolveError {
+  Singular
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Vec2 {
+  x : Double
+  y : Double
+} derive(@debug.Debug)
+pub fn Vec2::add(Self, Self) -> Self
+pub fn Vec2::scale(Self, Double) -> Self
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zjyyer/moonbit-klt-tracker/src/image"
+
+import {
+  "moonbitlang/core/debug",
+  "zjyyer/moonbit-klt-tracker/src/math",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum FrameError {
+  InvalidDimensions
+  InvalidPixelLength(expected~ : Int, actual~ : Int)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GrayFrame {
+  width : Int
+  height : Int
+  pixels : Array[Byte]
+} derive(@debug.Debug)
+pub fn GrayFrame::new(Int, Int, Array[Byte]) -> Result[Self, FrameError]
+pub fn GrayFrame::sample_bilinear(Self, @math.Vec2) -> Double?
+
+// Type aliases
+
+// Traits
+
