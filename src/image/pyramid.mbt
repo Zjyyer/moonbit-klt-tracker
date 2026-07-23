@@ -57,15 +57,19 @@ fn gaussian_weight(index : Int) -> Int {
 
 ///|
 fn reflected_index(index : Int, length : Int) -> Int {
-  let mut result = index
-  while result < 0 || result >= length {
-    if result < 0 {
-      result = -result
-    } else {
-      result = 2 * length - 2 - result
+  if length == 1 {
+    0
+  } else {
+    let mut result = index
+    while result < 0 || result >= length {
+      if result < 0 {
+        result = -result
+      } else {
+        result = 2 * length - 2 - result
+      }
     }
+    result
   }
-  result
 }
 
 ///|
