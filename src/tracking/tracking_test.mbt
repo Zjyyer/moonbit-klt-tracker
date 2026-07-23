@@ -167,6 +167,7 @@ test "an occluded forward candidate is rejected by the engine forward-backward c
     config.klt_config,
   )
   assert_eq(forward.status, @klt.Tracked)
+  assert_true(observation_is_trackable(next, forward))
   let tracker = Tracker::start(config, previous, [seed]).unwrap()
   let report = tracker.step(next).unwrap()
   assert_eq(report.observations.length(), 1)
