@@ -1,1 +1,1 @@
-src/**/pkg.generated.mbti -blank-at-eof
+src/**/pkg.generated.mbti whitespace=-blank-at-eof
