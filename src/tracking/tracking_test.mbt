@@ -19,6 +19,21 @@ fn textured_frame() -> @image.GrayFrame {
 }
 
 ///|
+fn occlude_center(frame : @image.GrayFrame) -> @image.GrayFrame {
+  let pixels : Array[Byte] = []
+  for y in 0..<frame.height {
+    for x in 0..<frame.width {
+      if x >= 24 && x < 40 && y >= 24 && y < 40 {
+        pixels.push(0)
+      } else {
+        pixels.push(frame.pixels[y * frame.width + x])
+      }
+    }
+  }
+  frame_or_fail(frame.width, frame.height, pixels)
+}
+
+///|
 fn seed_at(x : Double, y : Double) -> @features.SeedPoint {
   { position: @math.Vec2::{ x, y }, score: 1.0 }
 }
@@ -121,6 +136,38 @@ test "a rejected point does not suppress another valid observation in the same f
   assert_eq(report.observations[0].state, Active)
   assert_eq(report.observations[1].id, 1)
   assert_eq(report.observations[1].state, Lost)
+}
+
+///|
+test "an occluded forward candidate is rejected by the engine forward-backward check" {
+  let previous = textured_frame()
+  let config : TrackerConfig = {
+    klt_config: {
+      window_size: 5,
+      max_iterations: 1,
+      update_epsilon: 0.0001,
+      minimum_eigenvalue: 1.0,
+    },
+    pyramid_levels: 3,
+    max_consecutive_losses: 2,
+    redetection_interval: 0,
+    feature_config: {
+      window_size: 3,
+      minimum_score: 1.0,
+      max_features: 20,
+      suppression_radius: 3.0,
+    },
+  }
+  let tracker = Tracker::start(config, previous, [seed_at(32.0, 32.0)]).unwrap()
+  let report = tracker.step(occlude_center(previous)).unwrap()
+  assert_eq(report.observations.length(), 1)
+  assert_eq(report.observations[0].observation.status, @klt.Rejected)
+  assert_eq(report.observations[0].state, Lost)
+  assert_true(report.observations[0].observation.forward_backward_error >= 0.0)
+  let target = report.observations[0].observation.target
+  assert_false(target.x.is_nan() || target.x.is_inf())
+  assert_false(target.y.is_nan() || target.y.is_inf())
+  assert_eq(tracker.tracks()[0].state, Lost)
 }
 
 ///|

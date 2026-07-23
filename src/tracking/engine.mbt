@@ -184,10 +184,17 @@ pub fn Tracker::step(
       position: track.position,
       score: track.seed.score,
     }
-    let observation = @klt.track_pyramidal(
+    let forward = @klt.track_pyramidal(
       previous,
       next,
       seed,
+      self.config.klt_config,
+    )
+    let observation = @validation.validate_forward_backward(
+      previous,
+      next,
+      seed,
+      forward,
       self.config.klt_config,
     )
     let mut state = track.state
