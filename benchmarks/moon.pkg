@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/bench",
+  "zjyyer/moonbit-klt-tracker/src/features",
+  "zjyyer/moonbit-klt-tracker/src/image",
+  "zjyyer/moonbit-klt-tracker/src/tracking",
+}
+
+options(
+  name: "tracker_benchmark",
+)

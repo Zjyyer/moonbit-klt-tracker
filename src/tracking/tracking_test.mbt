@@ -1,5 +1,9 @@
 ///|
-fn frame_or_fail(width : Int, height : Int, pixels : Array[Byte]) -> @image.GrayFrame {
+fn frame_or_fail(
+  width : Int,
+  height : Int,
+  pixels : Array[Byte],
+) -> @image.GrayFrame {
   @image.GrayFrame::new(width, height, pixels).unwrap()
 }
 
@@ -20,7 +24,10 @@ fn seed_at(x : Double, y : Double) -> @features.SeedPoint {
 }
 
 ///|
-fn tracker_config(redetection_interval : Int, max_consecutive_losses : Int) -> TrackerConfig {
+fn tracker_config(
+  redetection_interval : Int,
+  max_consecutive_losses : Int,
+) -> TrackerConfig {
   {
     klt_config: {
       window_size: 5,
@@ -78,11 +85,10 @@ test "a tracked observation whose target is non-finite is not usable" {
 ///|
 test "seed IDs start at zero and retain ascending order after a frame step" {
   let frame = textured_frame()
-  let tracker = Tracker::start(
-    tracker_config(0, 2),
-    frame,
-    [seed_at(32.0, 32.0), seed_at(40.0, 40.0)],
-  ).unwrap()
+  let tracker = Tracker::start(tracker_config(0, 2), frame, [
+    seed_at(32.0, 32.0),
+    seed_at(40.0, 40.0),
+  ]).unwrap()
   assert_eq(tracker.tracks()[0].id, 0)
   assert_eq(tracker.tracks()[1].id, 1)
   ignore(tracker.step(frame).unwrap())
@@ -105,11 +111,10 @@ test "a failed track enters lost once and is retained until its loss threshold" 
 ///|
 test "a rejected point does not suppress another valid observation in the same frame" {
   let frame = textured_frame()
-  let tracker = Tracker::start(
-    tracker_config(0, 2),
-    frame,
-    [seed_at(32.0, 32.0), seed_at(1.0, 1.0)],
-  ).unwrap()
+  let tracker = Tracker::start(tracker_config(0, 2), frame, [
+    seed_at(32.0, 32.0),
+    seed_at(1.0, 1.0),
+  ]).unwrap()
   let report = tracker.step(frame).unwrap()
   assert_eq(report.observations.length(), 2)
   assert_eq(report.observations[0].id, 0)

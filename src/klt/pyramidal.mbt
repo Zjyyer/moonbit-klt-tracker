@@ -1,10 +1,16 @@
 ///|
-fn scaled_seed(seed : @features.SeedPoint, scale : Double) -> @features.SeedPoint {
+fn scaled_seed(
+  seed : @features.SeedPoint,
+  scale : Double,
+) -> @features.SeedPoint {
   { position: seed.position.scale(scale), score: seed.score }
 }
 
 ///|
-fn observation_at_level(observation : KltObservation, level : Int) -> KltObservation {
+fn observation_at_level(
+  observation : KltObservation,
+  level : Int,
+) -> KltObservation {
   {
     source: observation.source,
     target: observation.target,

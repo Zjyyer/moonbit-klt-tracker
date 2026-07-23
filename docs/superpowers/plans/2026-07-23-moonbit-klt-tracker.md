@@ -34,7 +34,7 @@
 | `src/formats/` | Versioned trajectory schema, JSON and CSV writing |
 | `src/cli/` | Manifest parser, command dispatch, report rendering |
 | `tests/fixtures/` | Checked-in deterministic frame and expected-output data |
-| `bench/` | Repeatable fixed-input benchmarks |
+| `benchmarks/` | Repeatable fixed-input benchmarks |
 | `docs/` | User guide, references, provenance, development journal and OSC audit |
 | `.github/workflows/` | Cross-platform quality and package-publish workflows |
 
@@ -336,7 +336,7 @@ Run: `git add src/cli tests/fixtures && git commit -m "feat: add reproducible tr
 ### Task 10: Property tests, benchmarks, and target-parity suite
 
 **Files:**
-- Create: `tests/property/invariants.mbt`, `bench/translation_bench.mbt`, `bench/moon.pkg.json`, `docs/performance.md`
+- Create: `tests/property/invariants.mbt`, `benchmarks/translation_bench.mbt`, `benchmarks/moon.pkg`, `docs/performance.md`
 
 **Interfaces:**
 - Consumes: all public tracking APIs.

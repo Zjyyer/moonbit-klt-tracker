@@ -1,7 +1,9 @@
 _build/
 .moon/
+.mooncakes/
 coverage/
 coverage.lcov
+*.generated.mbti
 tests/fixtures/local/
 tests/fixtures/output/
 .worktrees/

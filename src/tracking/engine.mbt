@@ -64,8 +64,14 @@ pub fn Tracker::start(
     let point = seed.position
     let max_x = (frame.width - 1).to_double()
     let max_y = (frame.height - 1).to_double()
-    if point.x.is_nan() || point.x.is_inf() || point.y.is_nan() || point.y.is_inf() ||
-      point.x < 0.0 || point.y < 0.0 || point.x > max_x || point.y > max_y {
+    if point.x.is_nan() ||
+      point.x.is_inf() ||
+      point.y.is_nan() ||
+      point.y.is_inf() ||
+      point.x < 0.0 ||
+      point.y < 0.0 ||
+      point.x > max_x ||
+      point.y > max_y {
       return Err(InvalidSeed(index~))
     }
   }
@@ -73,11 +79,21 @@ pub fn Tracker::start(
   for index, seed in seeds {
     tracks.push(make_track(index, seed))
   }
-  Ok({ config, previous_frame: frame, tracks, next_id: seeds.length(), frame_index: 0 })
+  Ok({
+    config,
+    previous_frame: frame,
+    tracks,
+    next_id: seeds.length(),
+    frame_index: 0,
+  })
 }
 
 ///|
-fn overlaps_active_track(tracks : Array[Track], point : @math.Vec2, radius : Double) -> Bool {
+fn overlaps_active_track(
+  tracks : Array[Track],
+  point : @math.Vec2,
+  radius : Double,
+) -> Bool {
   for track in tracks {
     if track.state == Active {
       let dx = track.position.x - point.x
@@ -91,13 +107,21 @@ fn overlaps_active_track(tracks : Array[Track], point : @math.Vec2, radius : Dou
 }
 
 ///|
-fn Tracker::append_redetections(self : Tracker, frame : @image.GrayFrame) -> Result[Unit, TrackerError] {
-  let detected = match @features.detect_shi_tomasi(frame, self.config.feature_config) {
+fn Tracker::append_redetections(
+  self : Tracker,
+  frame : @image.GrayFrame,
+) -> Result[Unit, TrackerError] {
+  let detected = match
+    @features.detect_shi_tomasi(frame, self.config.feature_config) {
     Ok(seeds) => seeds
     Err(_) => return Err(DetectionFailed)
   }
   for seed in detected {
-    if !overlaps_active_track(self.tracks, seed.position, self.config.feature_config.suppression_radius) {
+    if !overlaps_active_track(
+        self.tracks,
+        seed.position,
+        self.config.feature_config.suppression_radius,
+      ) {
       self.tracks.push(make_track(self.next_id, seed))
       self.next_id = self.next_id + 1
     }
@@ -106,7 +130,10 @@ fn Tracker::append_redetections(self : Tracker, frame : @image.GrayFrame) -> Res
 }
 
 ///|
-fn prune_expired(tracks : Array[Track], max_consecutive_losses : Int) -> Array[Track] {
+fn prune_expired(
+  tracks : Array[Track],
+  max_consecutive_losses : Int,
+) -> Array[Track] {
   let retained : Array[Track] = []
   for track in tracks {
     if track.consecutive_losses < max_consecutive_losses {
@@ -134,11 +161,15 @@ pub fn observation_is_trackable(
 }
 
 ///|
-pub fn Tracker::step(self : Tracker, frame : @image.GrayFrame) -> Result[FrameReport, TrackerError] {
+pub fn Tracker::step(
+  self : Tracker,
+  frame : @image.GrayFrame,
+) -> Result[FrameReport, TrackerError] {
   if !config_is_valid(self.config) {
     return Err(InvalidPyramidLevels)
   }
-  let previous = match @image.Pyramid::build(self.previous_frame, self.config.pyramid_levels) {
+  let previous = match
+    @image.Pyramid::build(self.previous_frame, self.config.pyramid_levels) {
     Ok(pyramid) => pyramid
     Err(_) => return Err(PyramidBuildFailed)
   }
@@ -149,8 +180,16 @@ pub fn Tracker::step(self : Tracker, frame : @image.GrayFrame) -> Result[FrameRe
   let reports : Array[TrackObservation] = []
   let updated : Array[Track] = []
   for track in self.tracks {
-    let seed : @features.SeedPoint = { position: track.position, score: track.seed.score }
-    let observation = @klt.track_pyramidal(previous, next, seed, self.config.klt_config)
+    let seed : @features.SeedPoint = {
+      position: track.position,
+      score: track.seed.score,
+    }
+    let observation = @klt.track_pyramidal(
+      previous,
+      next,
+      seed,
+      self.config.klt_config,
+    )
     let mut state = track.state
     let mut losses = track.consecutive_losses
     let mut position = track.position

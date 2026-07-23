@@ -120,7 +120,9 @@ fn default_tracker_config() -> @tracking.TrackerConfig {
 }
 
 ///|
-fn manifest_frames(manifest : FrameManifest) -> Result[Array[@image.GrayFrame], CommandError] {
+fn manifest_frames(
+  manifest : FrameManifest,
+) -> Result[Array[@image.GrayFrame], CommandError] {
   let frames : Array[@image.GrayFrame] = []
   for source in manifest.frames {
     match @image.GrayFrame::new(source.width, source.height, source.pixels) {
@@ -136,16 +138,23 @@ fn manifest_frames(manifest : FrameManifest) -> Result[Array[@image.GrayFrame], 
 }
 
 ///|
-fn document_for(manifest : FrameManifest) -> Result[@formats.TrajectoryDocument, CommandError] {
+fn document_for(
+  manifest : FrameManifest,
+) -> Result[@formats.TrajectoryDocument, CommandError] {
   let frames = match manifest_frames(manifest) {
     Ok(frames) => frames
     Err(error) => return Err(error)
   }
-  let seeds = match @features.detect_shi_tomasi(frames[0], default_tracker_config().feature_config) {
+  let seeds = match
+    @features.detect_shi_tomasi(
+      frames[0],
+      default_tracker_config().feature_config,
+    ) {
     Ok(seeds) => seeds
     Err(_) => return Err(Configuration)
   }
-  let tracker = match @tracking.Tracker::start(default_tracker_config(), frames[0], seeds) {
+  let tracker = match
+    @tracking.Tracker::start(default_tracker_config(), frames[0], seeds) {
     Ok(tracker) => tracker
     Err(_) => return Err(Configuration)
   }
@@ -174,16 +183,18 @@ pub fn run_cli(args : Array[String], manifest_text : String) -> CliResult {
   }
   let document = match document_for(manifest) {
     Ok(document) => document
-    Err(Configuration) => return cli_result(CONFIGURATION_EXIT, "configuration error\n", None, None)
+    Err(Configuration) =>
+      return cli_result(CONFIGURATION_EXIT, "configuration error\n", None, None)
     Err(_) => return cli_result(INPUT_EXIT, "input error\n", None, None)
   }
   match request.command {
-    "detect" => cli_result(
-      0,
-      "detected=" + document.tracks.length().to_string() + "\n",
-      None,
-      None,
-    )
+    "detect" =>
+      cli_result(
+        0,
+        "detected=" + document.tracks.length().to_string() + "\n",
+        None,
+        None,
+      )
     "track" => {
       let json = match request.json_path {
         Some(_) => Some(@formats.export_json(document))
@@ -223,21 +234,23 @@ pub fn run_cli_from_files(args : Array[String]) -> Int {
     return result.exit_code
   }
   match (request.json_path, result.json) {
-    (Some(path), Some(json)) => @fs.write_string_to_file(path, json + "\n") catch {
-      _ => {
-        println("input error")
-        return INPUT_EXIT
+    (Some(path), Some(json)) =>
+      @fs.write_string_to_file(path, json + "\n") catch {
+        _ => {
+          println("input error")
+          return INPUT_EXIT
+        }
       }
-    }
     _ => ()
   }
   match (request.csv_path, result.csv) {
-    (Some(path), Some(csv)) => @fs.write_string_to_file(path, csv) catch {
-      _ => {
-        println("input error")
-        return INPUT_EXIT
+    (Some(path), Some(csv)) =>
+      @fs.write_string_to_file(path, csv) catch {
+        _ => {
+          println("input error")
+          return INPUT_EXIT
+        }
       }
-    }
     _ => ()
   }
   print_summary(result.stdout)

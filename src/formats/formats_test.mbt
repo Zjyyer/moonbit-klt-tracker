@@ -26,19 +26,26 @@ fn track(id : Int) -> @tracking.Track {
 }
 
 ///|
-fn report(frame_index : Int, id : Int, x : Double, y : Double) -> @tracking.FrameReport {
+fn report(
+  frame_index : Int,
+  id : Int,
+  x : Double,
+  y : Double,
+) -> @tracking.FrameReport {
   {
     frame_index,
-    observations: [{ id, state: @tracking.Active, observation: observation(x, y) }],
+    observations: [
+      { id, state: @tracking.Active, observation: observation(x, y) },
+    ],
   }
 }
 
 ///|
 test "JSON export is versioned and orders rows by track ID then frame" {
-  let document = TrajectoryDocument::new(
-    [track(2), track(1)],
-    [report(4, 2, 20.0, 21.0), report(3, 1, 10.0, 11.0)],
-  )
+  let document = TrajectoryDocument::new([track(2), track(1)], [
+    report(4, 2, 20.0, 21.0),
+    report(3, 1, 10.0, 11.0),
+  ])
   assert_eq(
     export_json(document),
     "{\"schema_version\":\"1.0\",\"tracks\":[{\"id\":1,\"frame\":3,\"state\":\"active\",\"x\":10,\"y\":11},{\"id\":2,\"frame\":4,\"state\":\"active\",\"x\":20,\"y\":21}]}",
@@ -47,10 +54,10 @@ test "JSON export is versioned and orders rows by track ID then frame" {
 
 ///|
 test "CSV export uses a stable header and is byte-identical across renderings" {
-  let document = TrajectoryDocument::new(
-    [track(2), track(1)],
-    [report(4, 2, 20.0, 21.0), report(3, 1, 10.0, 11.0)],
-  )
+  let document = TrajectoryDocument::new([track(2), track(1)], [
+    report(4, 2, 20.0, 21.0),
+    report(3, 1, 10.0, 11.0),
+  ])
   let expected = "schema_version,track_id,frame,state,x,y\n1.0,1,3,active,10,11\n1.0,2,4,active,20,21\n"
   assert_eq(export_csv(document), expected)
   assert_eq(export_csv(document), export_csv(document))

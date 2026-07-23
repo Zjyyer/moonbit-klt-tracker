@@ -1,6 +1,8 @@
 ///|
 fn csv_field(value : String) -> String {
-  let must_quote = value.contains(",") || value.contains("\"") || value.contains("\n")
+  let must_quote = value.contains(",") ||
+    value.contains("\"") ||
+    value.contains("\n")
   if !must_quote {
     value
   } else {
