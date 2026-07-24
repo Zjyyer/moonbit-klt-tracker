@@ -1,2 +1,5 @@
 *.generated.mbti text eol=lf whitespace=-blank-at-eof
+*.mbt text eol=lf
+moon.pkg text eol=lf
+moon.mod text eol=lf
 tests/fixtures/**/*.json text eol=lf
