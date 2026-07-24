@@ -9,6 +9,7 @@ pub(all) struct AnalysisConfig {
 pub(all) enum AnalysisError {
   InvalidMaximumVelocity
   InvalidMaximumResidual
+  NonFiniteDisplacement
 } derive(Debug, Eq)
 
 ///|
@@ -101,6 +102,10 @@ fn sorted_rows(document : @formats.TrajectoryDocument) -> Array[ObservationRow] 
       -1
     } else if left.id > right.id {
       1
+    } else if left.state == @tracking.Active && right.state == @tracking.Lost {
+      -1
+    } else if left.state == @tracking.Lost && right.state == @tracking.Active {
+      1
     } else {
       0
     }
@@ -109,9 +114,28 @@ fn sorted_rows(document : @formats.TrajectoryDocument) -> Array[ObservationRow] 
 }
 
 ///|
-fn row_displacement(row : ObservationRow) -> Double {
-  (row.displacement_x * row.displacement_x +
-  row.displacement_y * row.displacement_y).sqrt()
+fn row_displacement(row : ObservationRow) -> Result[Double, AnalysisError] {
+  let x = if row.displacement_x < 0.0 {
+    -row.displacement_x
+  } else {
+    row.displacement_x
+  }
+  let y = if row.displacement_y < 0.0 {
+    -row.displacement_y
+  } else {
+    row.displacement_y
+  }
+  let scale = if x > y { x } else { y }
+  let magnitude = if scale == 0.0 {
+    0.0
+  } else {
+    scale * (x / scale * (x / scale) + y / scale * (y / scale)).sqrt()
+  }
+  if magnitude.is_nan() || magnitude.is_inf() {
+    Err(NonFiniteDisplacement)
+  } else {
+    Ok(magnitude)
+  }
 }
 
 ///|
@@ -141,7 +165,7 @@ fn summarize_track(
   id : Int,
   rows : Array[ObservationRow],
   config : AnalysisConfig,
-) -> TrackSummary {
+) -> Result[TrackSummary, AnalysisError] {
   let mut observation_count = 0
   let mut active_count = 0
   let mut lost_count = 0
@@ -150,7 +174,15 @@ fn summarize_track(
   for row in rows {
     if row.id == id {
       observation_count = observation_count + 1
-      displacement = displacement + row_displacement(row)
+      let step = match row_displacement(row) {
+        Err(error) => return Err(error)
+        Ok(value) => value
+      }
+      let next_displacement = displacement + step
+      if next_displacement.is_nan() || next_displacement.is_inf() {
+        return Err(NonFiniteDisplacement)
+      }
+      displacement = next_displacement
       if row.state == @tracking.Active {
         active_count = active_count + 1
       } else {
@@ -173,7 +205,7 @@ fn summarize_track(
   } else {
     Normal
   }
-  {
+  Ok({
     id,
     observation_count,
     active_count,
@@ -182,7 +214,7 @@ fn summarize_track(
     mean_velocity,
     rank: 0,
     anomaly,
-  }
+  })
 }
 
 ///|
@@ -258,7 +290,10 @@ pub fn analyze(
       let rows = sorted_rows(document)
       let tracks : Array[TrackSummary] = []
       for id in track_ids(document, rows) {
-        tracks.push(summarize_track(id, rows, valid_config))
+        match summarize_track(id, rows, valid_config) {
+          Err(error) => return Err(error)
+          Ok(track) => tracks.push(track)
+        }
       }
       Ok({
         tracks: rank_tracks(tracks),

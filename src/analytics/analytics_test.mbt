@@ -180,6 +180,7 @@ test "analysis summarizes displacement velocity quality ranking and anomalies" {
   assert_eq(analysis.quality.active_count, 3)
   assert_eq(analysis.quality.lost_count, 1)
   assert_eq(analysis.quality.rejected_count, 1)
+  assert_eq(analysis.quality.out_of_bounds_count, 0)
   assert_eq(analysis.tracks.length(), 2)
   let first = analysis.tracks[0]
   assert_eq(first.id, 1)
@@ -289,4 +290,95 @@ test "analysis classifies residual anomalies before velocity anomalies" {
   ])
   let analysis = analyze(document, AnalysisConfig::new(1.0, 1.0).unwrap()).unwrap()
   assert_eq(analysis.tracks[0].anomaly, ExcessiveResidual)
+}
+
+///|
+test "analysis reports typed error when finite displacement overflows" {
+  let document = @formats.TrajectoryDocument::new([], [
+    analytics_report(1, [
+      {
+        id: 1,
+        state: @tracking.Active,
+        observation: analytics_observation(
+          1.5e308,
+          1.5e308,
+          0.1,
+          0.1,
+          @klt.Tracked,
+        ),
+      },
+    ]),
+  ])
+  match analyze(document, AnalysisConfig::new(10.0, 1.0).unwrap()) {
+    Err(error) => assert_eq(error, NonFiniteDisplacement)
+    Ok(_) => fail("expected displacement overflow to be rejected")
+  }
+}
+
+///|
+test "analysis reports typed error when finite steps overflow accumulation" {
+  let document = @formats.TrajectoryDocument::new([], [
+    analytics_report(1, [
+      {
+        id: 1,
+        state: @tracking.Active,
+        observation: analytics_observation(1.0e308, 0.0, 0.1, 0.1, @klt.Tracked),
+      },
+    ]),
+    analytics_report(2, [
+      {
+        id: 1,
+        state: @tracking.Active,
+        observation: analytics_observation(1.0e308, 0.0, 0.1, 0.1, @klt.Tracked),
+      },
+    ]),
+  ])
+  match analyze(document, AnalysisConfig::new(10.0, 1.0).unwrap()) {
+    Err(error) => assert_eq(error, NonFiniteDisplacement)
+    Ok(_) => fail("expected displacement accumulation overflow to be rejected")
+  }
+}
+
+///|
+test "analysis of an empty document has empty output and zero quality counters" {
+  let analysis = analyze(
+    @formats.TrajectoryDocument::new([], []),
+    AnalysisConfig::new(1.0, 1.0).unwrap(),
+  ).unwrap()
+  assert_eq(analysis.tracks.length(), 0)
+  assert_eq(analysis.events.length(), 0)
+  assert_eq(analysis.quality.observation_count, 0)
+  assert_eq(analysis.quality.active_count, 0)
+  assert_eq(analysis.quality.lost_count, 0)
+  assert_eq(analysis.quality.rejected_count, 0)
+  assert_eq(analysis.quality.out_of_bounds_count, 0)
+}
+
+///|
+test "analysis orders duplicate frame and track rows by state rather than input order" {
+  let active : @tracking.TrackObservation = {
+    id: 5,
+    state: @tracking.Active,
+    observation: analytics_observation(1.0, 0.0, 0.1, 0.1, @klt.Tracked),
+  }
+  let lost : @tracking.TrackObservation = {
+    id: 5,
+    state: @tracking.Lost,
+    observation: analytics_observation(1.0, 0.0, 0.1, 0.1, @klt.Rejected),
+  }
+  let config = AnalysisConfig::new(10.0, 1.0).unwrap()
+  let first = analyze(
+    @formats.TrajectoryDocument::new([], [analytics_report(1, [lost, active])]),
+    config,
+  ).unwrap()
+  let second = analyze(
+    @formats.TrajectoryDocument::new([], [analytics_report(1, [active, lost])]),
+    config,
+  ).unwrap()
+  let expected : Array[LifecycleEvent] = [
+    Activated(id=5, frame=1),
+    Lost(id=5, frame=1),
+  ]
+  assert_eq(first.events, expected)
+  assert_eq(second.events, expected)
 }
