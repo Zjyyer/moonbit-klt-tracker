@@ -18,14 +18,18 @@ fn is_finite(value : Double) -> Bool {
 /// Creates an empty accumulator governed by `config`.
 pub fn StatisticsAccumulator::new(
   config : StatisticsConfig,
-) -> StatisticsAccumulator {
-  {
-    minimum_sample_count: config.minimum_sample_count,
-    count: 0,
-    minimum: 0.0,
-    maximum: 0.0,
-    mean: 0.0,
-    squared_deviation_sum: 0.0,
+) -> Result[StatisticsAccumulator, StatisticsError] {
+  if !valid_minimum_sample_count(config.minimum_sample_count) {
+    Err(InvalidMinimumSampleCount)
+  } else {
+    Ok({
+      minimum_sample_count: config.minimum_sample_count,
+      count: 0,
+      minimum: 0.0,
+      maximum: 0.0,
+      mean: 0.0,
+      squared_deviation_sum: 0.0,
+    })
   }
 }
 

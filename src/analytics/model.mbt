@@ -13,11 +13,16 @@ pub(all) struct StatisticsConfig {
 } derive(Debug, Eq)
 
 ///|
+fn valid_minimum_sample_count(minimum_sample_count : Int) -> Bool {
+  minimum_sample_count >= 0
+}
+
+///|
 /// Creates a statistics configuration with a non-negative reporting threshold.
 pub fn StatisticsConfig::new(
   minimum_sample_count : Int,
 ) -> Result[StatisticsConfig, StatisticsError] {
-  if minimum_sample_count < 0 {
+  if !valid_minimum_sample_count(minimum_sample_count) {
     Err(InvalidMinimumSampleCount)
   } else {
     Ok({ minimum_sample_count, })
