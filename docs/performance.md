@@ -16,3 +16,7 @@ The two benchmark rows are kept separate:
 Record results together with the complete `moon --version` output, `--target native`, the `--release` flag, the fixture dimensions, and the command above. Benchmark output includes a row name and timing statistics such as mean, median, and sample count; retain the raw output rather than rounding it into a single headline number.
 
 These measurements are regression evidence for this fixture and toolchain only. They are not a universal performance claim: CPU model, operating system, MoonBit version, compiler backend, build mode, and background load can all change the result.
+
+## Analytics reporting
+
+Trajectory analytics and NDJSON rendering are deterministic library operations, but they are not included in the tracker benchmark above. No throughput, allocation, or latency claim is made for them yet. The renderer emits one short JSON object at a time into a `StringBuilder`; consumers that need performance evidence should benchmark `analyze` and `export_ndjson` with a fixed trajectory document, target, compiler version, and captured raw output.

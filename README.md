@@ -20,7 +20,9 @@ The CLI's parsing, file boundary, golden output, and fixture workflows are teste
 
 ## Library overview
 
-The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes reports; `cli_core` owns target-independent command flow; and the native `cli` executable owns process arguments and exit status. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
+The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes trajectory documents; `analytics` derives pure finite-safe summaries and NDJSON reports; `cli_core` owns target-independent command flow; and the native `cli` executable owns process arguments and exit status. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
+
+`analytics.analyze(document, config)` returns per-track summaries, quality totals, and lifecycle events without mutating tracker state. `analytics.export_ndjson(analysis)` writes a newline-terminated stream with one schema header, summaries ordered by track ID, then events ordered by frame, track ID, and event kind. It is a library-only export; the current CLI intentionally does not create NDJSON files.
 
 ## Scope and limitations
 
