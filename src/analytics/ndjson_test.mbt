@@ -74,3 +74,74 @@ test "NDJSON export orders equal-frame events by track ID then event type" {
     #|
   assert_eq(export_ndjson(analysis), expected)
 }
+
+///|
+test "NDJSON export preserves the input track and event array orders" {
+  let tracks : Array[TrackSummary] = [
+    {
+      id: 9,
+      observation_count: 1,
+      active_count: 1,
+      lost_count: 0,
+      displacement: 9.0,
+      mean_velocity: 9.0,
+      rank: 1,
+      anomaly: Normal,
+    },
+    {
+      id: 2,
+      observation_count: 1,
+      active_count: 1,
+      lost_count: 0,
+      displacement: 2.0,
+      mean_velocity: 2.0,
+      rank: 2,
+      anomaly: Normal,
+    },
+  ]
+  let events : Array[LifecycleEvent] = [
+    Lost(id=9, frame=2),
+    Activated(id=2, frame=1),
+  ]
+  let analysis : SequenceAnalysis = {
+    tracks,
+    quality: {
+      observation_count: 2,
+      active_count: 1,
+      lost_count: 1,
+      rejected_count: 0,
+      out_of_bounds_count: 0,
+    },
+    events,
+  }
+  ignore(export_ndjson(analysis))
+  assert_eq(tracks.map(fn(track) { track.id }), [9, 2])
+  assert_eq(events, [Lost(id=9, frame=2), Activated(id=2, frame=1)])
+}
+
+///|
+test "panic NDJSON export rejects constructed non-finite metrics" {
+  let analysis : SequenceAnalysis = {
+    tracks: [
+      {
+        id: 1,
+        observation_count: 1,
+        active_count: 1,
+        lost_count: 0,
+        displacement: 0.0 / 0.0,
+        mean_velocity: 1.0,
+        rank: 1,
+        anomaly: Normal,
+      },
+    ],
+    quality: {
+      observation_count: 1,
+      active_count: 1,
+      lost_count: 0,
+      rejected_count: 0,
+      out_of_bounds_count: 0,
+    },
+    events: [],
+  }
+  ignore(export_ndjson(analysis))
+}

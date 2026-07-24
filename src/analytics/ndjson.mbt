@@ -60,7 +60,7 @@ fn event_order(event : LifecycleEvent) -> Int {
 
 ///|
 fn sorted_tracks(tracks : Array[TrackSummary]) -> Array[TrackSummary] {
-  let ordered = tracks
+  let ordered = tracks.copy()
   ordered.sort_by(fn(left, right) {
     if left.id < right.id {
       -1
@@ -91,7 +91,7 @@ fn event_frame(event : LifecycleEvent) -> Int {
 
 ///|
 fn sorted_events(events : Array[LifecycleEvent]) -> Array[LifecycleEvent] {
-  let ordered = events
+  let ordered = events.copy()
   ordered.sort_by(fn(left, right) {
     let left_frame = event_frame(left)
     let right_frame = event_frame(right)
