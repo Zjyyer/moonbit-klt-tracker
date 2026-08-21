@@ -1,9 +1,9 @@
 // Deterministic, finite-safe trajectory analytics.
 import {
-  "zjyyer/moonbit-klt-tracker/src/formats",
-  "zjyyer/moonbit-klt-tracker/src/tracking",
-  "zjyyer/moonbit-klt-tracker/src/klt",
-  "zjyyer/moonbit-klt-tracker/src/math",
-  "zjyyer/moonbit-klt-tracker/src/trajectory",
-  "zjyyer/moonbit-klt-tracker/src/validation",
+  "Zjyyer/moonbit-klt-tracker/src/formats",
+  "Zjyyer/moonbit-klt-tracker/src/tracking",
+  "Zjyyer/moonbit-klt-tracker/src/klt",
+  "Zjyyer/moonbit-klt-tracker/src/math",
+  "Zjyyer/moonbit-klt-tracker/src/trajectory",
+  "Zjyyer/moonbit-klt-tracker/src/validation",
 }

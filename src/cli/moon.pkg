@@ -1,6 +1,6 @@
 import {
   "moonbitlang/x/sys",
-  "zjyyer/moonbit-klt-tracker/src/cli_core",
+  "Zjyyer/moonbit-klt-tracker/src/cli_core",
 }
 
 pkgtype(kind: "executable")

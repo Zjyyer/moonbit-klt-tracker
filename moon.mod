@@ -1,4 +1,4 @@
-name = "zjyyer/moonbit-klt-tracker"
+name = "Zjyyer/moonbit-klt-tracker"
 
 version = "0.1.0"
 

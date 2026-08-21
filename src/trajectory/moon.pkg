@@ -1,4 +1,4 @@
 // Immutable trajectory sequences and finite-safe quality transforms.
 import {
-  "zjyyer/moonbit-klt-tracker/src/math",
+  "Zjyyer/moonbit-klt-tracker/src/math",
 }

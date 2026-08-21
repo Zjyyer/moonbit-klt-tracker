@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "zjyyer/moonbit-klt-tracker/src/features"
+package "Zjyyer/moonbit-klt-tracker/src/features"
 
 import {
+  "Zjyyer/moonbit-klt-tracker/src/image",
+  "Zjyyer/moonbit-klt-tracker/src/math",
   "moonbitlang/core/debug",
-  "zjyyer/moonbit-klt-tracker/src/image",
-  "zjyyer/moonbit-klt-tracker/src/math",
 }
 
 // Values

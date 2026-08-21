@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "zjyyer/moonbit-klt-tracker/src/math"
+package "Zjyyer/moonbit-klt-tracker/src/math"
 
 import {
   "moonbitlang/core/debug",
