@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: moonbitlang/setup-moonbit@v1
+        with:
+          version: "0.1.20260814"
       - run: moon publish
         env:
           MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}

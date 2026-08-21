@@ -6,21 +6,29 @@ on:
 
 jobs:
   quality:
-    name: ${{ matrix.os }}
+    name: ${{ matrix.os }} / ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            target: wasm-gc
+          - os: macos-latest
+            target: wasm-gc
+          - os: windows-latest
+            target: wasm-gc
+          - os: ubuntu-latest
+            target: native
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
         with:
-          version: "0.1.20260713"
+          version: "0.1.20260814"
       - run: node --test tools/verify-docs.test.mjs
       - run: node tools/verify-docs.mjs
       - run: moon fmt --check
       - run: moon check --target all --deny-warn
-      - run: moon test --target all --deny-warn
+      - run: moon test --target ${{ matrix.target }} --deny-warn
       - run: moon info
       - run: git diff --exit-code

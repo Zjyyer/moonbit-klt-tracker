@@ -2,11 +2,18 @@
 
 [English](README.md)
 
-`moonbit-klt-tracker` 是一个 MoonBit 原生、确定性的稀疏特征跟踪库，输入为有序灰度帧缓冲区。它提供经过校验的灰度帧、图像金字塔和梯度、Shi-Tomasi 特征检测、金字塔 Lucas-Kanade（KLT）跟踪、前后向校验、轨迹生命周期管理，以及确定性的 JSON/CSV 导出。
+`moonbit-klt-tracker` 是一个确定性的 MoonBit 稀疏特征跟踪库和 CLI，面向有序灰度帧。项目组合了经过校验的图像缓冲区、Shi-Tomasi 特征、金字塔 Lucas-Kanade 跟踪、轨迹生命周期、质量验证、报告以及稳定的 JSON/CSV/NDJSON 数据契约。
+
+## 特性
+
+- 确定性的灰度帧、梯度与图像金字塔；
+- 有限值安全的数学、插值、滤波、归一化、分块和区域分析；
+- Shi-Tomasi 选择、金字塔 KLT、前后向验证和恢复诊断；
+- 不可变轨迹、运动模型、质量、分段和事件 API；
+- 表格/流/模式契约与分析报告；
+- 基于清单和黄金夹具的原生 CLI。
 
 ## 快速开始
-
-安装 MoonBit 后，用仓库内的夹具运行原生 CLI：
 
 ```sh
 moon run src/cli -- detect --manifest tests/fixtures/occlusion/manifest.json
@@ -14,30 +21,41 @@ moon run src/cli -- inspect --manifest tests/fixtures/occlusion/manifest.json
 moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --json trajectory.json --csv trajectory.csv
 ```
 
-`detect` 输出检测到的轨迹数量，`inspect` 输出确定性的报告；`track` 至少需要 `--json` 或 `--csv` 之一，并且只写入请求的结果路径。所有命令都需要 `--manifest`。重复或未知的标志，以及向 `detect` 或 `inspect` 传入输出标志，都会产生用法错误。清单是包含 `frames` 数组的 JSON；每帧尺寸必须一致，`pixels` 必须是字节值。完整输入见以上夹具。
+清单包含 `frames` 数组；每帧尺寸必须一致，`pixels` 必须是字节值。`detect` 输出数量，`inspect` 输出确定性报告，`track` 只写入指定的 JSON/CSV 输出。重复参数、未知参数、缺少清单和无效输出组合都会被拒绝。
 
-CLI 解析、文件边界、黄金输出和夹具工作流由 `src/cli_core/cli_flow_test.mbt` 覆盖；CI 通过 `moon test --target all --deny-warn` 执行这些测试。
+## 包结构
 
-## 库概览
-
-公共包采用分层设计：`math` 和 `image` 为 `features` 提供基础；`klt` 与 `validation` 建立在其上；`tracking` 管理生命周期；`formats` 序列化报告；`cli_core` 负责与目标无关的命令流程；原生 `cli` 可执行包负责进程参数与退出状态。API 名称和错误行为见[架构说明](docs/architecture.md)与[算法说明](docs/algorithm.md)。
-
-## 范围与限制
-
-本项目提供稀疏、短距离的点跟踪，而不是视频或图像处理运行时；调用方需要提供已解码的灰度帧。实现采用局部平移模型和固定源图像梯度，并假设每个跟踪窗口内亮度恒定。它会拒绝无纹理、病态、越界或前后向不一致的观测；不建模仿射或投影运动、光照变化、遮挡语义、滚动快门、相机标定、稠密光流、GPU、编解码器、采集设备、深度学习模型或 GUI。
+| 包 | 职责 |
+| --- | --- |
+| `math` | 向量、矩阵、统计、几何、区间和序列工具 |
+| `image` | 帧、梯度、金字塔、插值、滤波、归一化、分块和区域 |
+| `features` | Shi-Tomasi 候选、确定性选择、间距和分数统计 |
+| `klt` | 单层与金字塔 Lucas-Kanade 跟踪 |
+| `motion` | 平移/仿射/投影模型、鲁棒损失、拟合和残差 |
+| `validation` | 前后向检查、阈值、诊断和批量门禁 |
+| `tracking` | 生命周期、健康度、恢复候选、时间线、检查点和会话 |
+| `trajectory` | 不可变样本、重采样、平滑、指标、窗口和分段 |
+| `formats` | JSON/CSV 以及表格、流、列和模式契约 |
+| `analytics` | 聚合、排序、仪表板、过滤、报告和 NDJSON 契约 |
+| `cli_core` / `cli` | 与目标无关的命令流程和原生可执行程序 |
 
 ## 开发与验证
 
 ```sh
+node --test tools/verify-docs.test.mjs
 node tools/verify-docs.mjs
 moon fmt --check
 moon check --target all --deny-warn
-moon test --target all --deny-warn
+moon test --target wasm-gc --deny-warn
+moon bench benchmarks --target wasm-gc --release --deny-warn
 moon info
-git diff --exit-code
 ```
 
-请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)、[变更记录](CHANGELOG.md)、[性能证据](docs/performance.md)、[参考资料](docs/references.md)、[来源说明](docs/provenance.md)和 [OSC 2026 自审](docs/osc2026-self-audit.md)。
+参阅 [贡献指南](CONTRIBUTING.md)、[变更记录](CHANGELOG.md)、[架构说明](docs/architecture.md)、[算法说明](docs/algorithm.md)、[性能证据](docs/performance.md)、[参考资料](docs/references.md)和[来源说明](docs/provenance.md)。
+
+## 范围与限制
+
+本项目面向稀疏、短距离点跟踪，不是视频运行时；调用方需要提供已解码的灰度帧。默认跟踪器假设局部亮度恒定并使用固定源梯度；不提供稠密光流、编解码器、采集设备、相机标定、滚动快门建模、GPU 执行或 GUI。
 
 ## 许可证
 

@@ -6,15 +6,158 @@ import {
 }
 
 // Values
+pub fn angle_between(Vec2, Vec2) -> Double
+
+pub fn autocorrelation(Array[Double], Int) -> Result[Double, SeriesError]
+
+pub fn centroid(Array[Vec2]) -> Vec2
+
+pub fn correlation(Array[Double], Array[Double]) -> Result[Double, StatsError]
+
+pub fn covariance(Array[Double], Array[Double]) -> Result[Double, StatsError]
+
+pub fn cross(Vec2, Vec2) -> Double
+
+pub fn cumulative_sum(Array[Double]) -> Result[Array[Double], SeriesError]
+
+pub fn distance(Vec2, Vec2) -> Double
+
+pub fn dot(Vec2, Vec2) -> Double
+
+pub fn first_difference(Array[Double]) -> Result[Array[Double], SeriesError]
+
+pub fn interpolate_uniform(Array[Double], Double) -> Result[Array[Double], SeriesError]
+
+pub fn interval_contains_all(Interval, Array[Double]) -> Bool
+
+pub fn interval_distance(Interval, Interval) -> Double
+
+pub fn interval_midpoint(Interval) -> Double
+
+pub fn interval_sum(Array[Interval]) -> Double
+
+pub fn linear_regression(Array[Double], Array[Double]) -> Result[Regression, SeriesError]
+
+pub fn merge_intervals(Array[Interval]) -> Array[Interval]
+
+pub fn norm(Vec2) -> Double
+
+pub fn normalize_min_max(Array[Double]) -> Result[Array[Double], SeriesError]
+
+pub fn normalize_z_score(Array[Double]) -> Result[Array[Double], SeriesError]
+
+pub fn percentile_rank(Array[Double], Double) -> Result[Double, StatsError]
+
+pub fn polygon_area(Array[Vec2]) -> Double
+
+pub fn quantile(Array[Double], Double) -> Result[Double, StatsError]
+
+pub fn rectangle_area(Vec2, Vec2) -> Double
+
+pub fn rectangle_contains(Vec2, Vec2, Vec2) -> Bool
+
+pub fn rectangle_intersection(Vec2, Vec2, Vec2, Vec2) -> Double
+
+pub fn rolling_maximum(Array[Double], Int) -> Result[Array[Double], SeriesError]
+
+pub fn rolling_minimum(Array[Double], Int) -> Result[Array[Double], SeriesError]
+
+pub fn second_difference(Array[Double]) -> Result[Array[Double], SeriesError]
+
 pub fn solve_symmetric_2x2(Double, Double, Double, Vec2) -> Result[Vec2, SolveError]
+
+pub fn summarize(Array[Double]) -> Result[ScalarStats, StatsError]
 
 // Errors
 
 // Types and methods
+pub(all) struct Interval {
+  minimum : Double
+  maximum : Double
+} derive(@debug.Debug)
+pub fn Interval::clamp(Self, Double) -> Double
+pub fn Interval::contains(Self, Double) -> Bool
+pub fn Interval::expand(Self, Double) -> Self
+pub fn Interval::intersect(Self, Self) -> Self?
+pub fn Interval::length(Self) -> Double
+pub fn Interval::lerp(Self, Double) -> Double
+pub fn Interval::new(Double, Double) -> Result[Self, MatrixError]
+pub fn Interval::normalize(Self, Double) -> Double
+pub fn Interval::split(Self, Int) -> Array[Self]
+pub fn Interval::union(Self, Self) -> Self
+
+pub(all) struct Matrix {
+  rows : Int
+  columns : Int
+  values : Array[Double]
+} derive(@debug.Debug)
+pub fn Matrix::add(Self, Self) -> Result[Self, MatrixError]
+pub fn Matrix::at(Self, Int, Int) -> Result[Double, MatrixError]
+pub fn Matrix::frobenius_norm(Self) -> Double
+pub fn Matrix::identity(Int) -> Result[Self, MatrixError]
+pub fn Matrix::multiply(Self, Self) -> Result[Self, MatrixError]
+pub fn Matrix::new(Int, Int, Array[Double]) -> Result[Self, MatrixError]
+pub fn Matrix::scale(Self, Double) -> Result[Self, MatrixError]
+pub fn Matrix::set(Self, Int, Int, Double) -> Result[Unit, MatrixError]
+pub fn Matrix::solve(Self, Array[Double]) -> Result[Array[Double], MatrixError]
+pub fn Matrix::transpose(Self) -> Self
+pub fn Matrix::zeros(Int, Int) -> Result[Self, MatrixError]
+
+pub(all) enum MatrixError {
+  InvalidShape
+  LengthMismatch
+  IndexOutOfBounds
+  NonFiniteInput
+  Singular
+  NonFiniteResult
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Regression {
+  slope : Double
+  intercept : Double
+  coefficient : Double
+} derive(@debug.Debug)
+pub fn Regression::predict(Self, Double) -> Double
+
+pub(all) struct ScalarStats {
+  count : Int
+  minimum : Double
+  maximum : Double
+  mean : Double
+  variance : Double
+  sum : Double
+  sum_absolute : Double
+} derive(@debug.Debug)
+
+pub(all) struct Segment2 {
+  start : Vec2
+  end : Vec2
+} derive(@debug.Debug)
+pub fn Segment2::direction(Self) -> Vec2
+pub fn Segment2::distance_to(Self, Vec2) -> Double
+pub fn Segment2::length(Self) -> Double
+pub fn Segment2::midpoint(Self) -> Vec2
+pub fn Segment2::project(Self, Vec2) -> Vec2
+
+pub(all) enum SeriesError {
+  Empty
+  NonFinite
+  LengthMismatch
+  InvalidWindow
+  InvalidStep
+  Degenerate
+} derive(Eq, @debug.Debug)
+
 pub(all) enum SolveError {
   Singular
   NonFiniteInput
   NonFiniteResult
+} derive(Eq, @debug.Debug)
+
+pub(all) enum StatsError {
+  Empty
+  NonFinite
+  InvalidQuantile
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Vec2 {
@@ -27,4 +170,3 @@ pub fn Vec2::scale(Self, Double) -> Self
 // Type aliases
 
 // Traits
-

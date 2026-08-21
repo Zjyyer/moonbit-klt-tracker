@@ -2,11 +2,18 @@
 
 [简体中文](README.zh-CN.md)
 
-`moonbit-klt-tracker` is a MoonBit-native, deterministic sparse feature-tracking library for ordered grayscale frame buffers. It provides checked grayscale frames, image pyramids and gradients, Shi-Tomasi feature detection, pyramidal Lucas-Kanade (KLT) tracking, forward-backward validation, track lifecycle management, and deterministic JSON/CSV exports.
+`moonbit-klt-tracker` is a deterministic MoonBit library and CLI for sparse feature tracking on ordered grayscale frames. It combines checked image buffers, Shi-Tomasi features, pyramidal Lucas-Kanade tracking, trajectory lifecycle management, validation, reporting, and stable JSON/CSV/NDJSON contracts.
+
+## Highlights
+
+- deterministic integer-backed grayscale frames and image pyramids;
+- finite-safe math, interpolation, filtering, normalization, tiling, and region analysis;
+- Shi-Tomasi selection, pyramidal KLT tracking, forward-backward validation, and recovery diagnostics;
+- immutable trajectory, motion-model, quality, segmentation, and event APIs;
+- schema-aware table/stream contracts and analytics reports;
+- a small native CLI with checked manifests and golden fixtures.
 
 ## Quick start
-
-Install MoonBit, then run the checked-in fixture through the native CLI:
 
 ```sh
 moon run src/cli -- detect --manifest tests/fixtures/occlusion/manifest.json
@@ -14,35 +21,49 @@ moon run src/cli -- inspect --manifest tests/fixtures/occlusion/manifest.json
 moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --json trajectory.json --csv trajectory.csv
 ```
 
-`detect` prints the detected-track count. `inspect` prints a deterministic report. `track` requires at least one of `--json` or `--csv` and writes only the requested result paths. All commands require `--manifest`; duplicate flags, unknown flags, and output flags on `detect` or `inspect` are usage errors. The manifest is JSON with a `frames` array whose frames share dimensions and contain byte-valued grayscale `pixels`; see the fixtures above for complete inputs.
+The manifest contains a `frames` array. Frames must share dimensions and contain byte-valued grayscale `pixels`. `detect` prints a count, `inspect` prints a deterministic report, and `track` writes only the requested JSON/CSV outputs. Duplicate flags, unknown flags, missing manifests, and invalid output combinations are rejected.
 
-The CLI's parsing, file boundary, golden output, and fixture workflows are tested in `src/cli_core/cli_flow_test.mbt`. The CI workflow runs those tests through `moon test --target all --deny-warn`.
+## Package map
 
-## Library overview
+| Package | Responsibility |
+| --- | --- |
+| `math` | vectors, matrices, statistics, geometry, intervals, and series utilities |
+| `image` | frames, gradients, pyramids, interpolation, filters, normalization, tiles, and regions |
+| `features` | Shi-Tomasi candidates, deterministic selection, spacing, and score summaries |
+| `klt` | single-level and pyramidal Lucas-Kanade tracking |
+| `motion` | translation/affine/projective models, robust losses, fitting, and residuals |
+| `validation` | forward-backward checks, thresholds, typed diagnostics, and batch gates |
+| `tracking` | lifecycle, health, recovery candidates, timelines, checkpoints, and sessions |
+| `trajectory` | immutable samples, resampling, smoothing, metrics, windows, and segmentation |
+| `formats` | JSON/CSV models plus table, stream, column, and schema contracts |
+| `analytics` | aggregation, ranking, dashboards, filters, reports, and NDJSON contracts |
+| `cli_core` / `cli` | target-independent commands and the native executable |
 
-The public packages are deliberately layered: `math` and `image` support `features`; `klt` and `validation` operate on those; `tracking` owns lifecycle; `formats` serializes trajectory documents; `analytics` derives pure finite-safe summaries and NDJSON reports; `cli_core` owns target-independent command flow; and the native `cli` executable owns process arguments and exit status. API names and error behavior are described in [architecture notes](docs/architecture.md) and [algorithm notes](docs/algorithm.md).
+## Data and API contracts
 
-`analytics.analyze(document, config)` returns per-track summaries, quality totals, and lifecycle events without mutating tracker state. `analytics.export_ndjson(analysis)` writes a newline-terminated stream with one schema header, summaries ordered by track ID, then events ordered by frame, track ID, and event kind. It is a library-only export; the current CLI intentionally does not create NDJSON files.
+The library APIs are pure where practical and return typed errors for invalid dimensions, non-finite values, insufficient samples, and incompatible schemas. `analytics.analyze(document, config)` produces deterministic per-track summaries, quality totals, and lifecycle events. `analytics.export_ndjson(analysis)` emits a newline-terminated stream with one header, summaries ordered by track ID, and events ordered by frame, track ID, and kind.
 
-## Scope and limitations
+## Benchmarks
 
-This is sparse, short-range point tracking, not a video or image-processing runtime. Callers supply decoded grayscale frames. The implementation uses a local translation model with fixed source gradients and assumes brightness constancy within each tracking window. It can reject textureless, ill-conditioned, out-of-bounds, or forward-backward-inconsistent observations; it does not model affine or projective motion, illumination changes, occlusion semantics, rolling shutter, camera calibration, dense flow, GPU execution, codecs, capture devices, deep-learning models, or a GUI.
+The checked-in benchmark uses a fixed 128 × 96 LCG-generated texture and a one-pixel horizontal translation. It measures detector and tracker paths separately. Captured output and reproduction details are in [docs/performance.md](docs/performance.md); these numbers are fixture- and toolchain-specific, not universal performance claims.
 
-## Development and verification
+## Development
 
 ```sh
 node --test tools/verify-docs.test.mjs
 node tools/verify-docs.mjs
 moon fmt --check
 moon check --target all --deny-warn
-moon test --target all --deny-warn
+moon test --target wasm-gc --deny-warn
+moon bench benchmarks --target wasm-gc --release --deny-warn
 moon info
-git diff --exit-code
 ```
 
-For the OSC candidate-repository checks, switch to the locally checked-out `main` branch and run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/osc-audit.ps1`. It reports the tracked MoonBit source inventory, one recorded author identity, history count, required repository files, and the same quality gates. Remote default-branch verification is intentionally separate and is performed only after publishing with `-CheckRemoteDefault`.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md), [architecture notes](docs/architecture.md), [algorithm notes](docs/algorithm.md), [performance evidence](docs/performance.md), [references](docs/references.md), and [provenance](docs/provenance.md).
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), the [change log](CHANGELOG.md), [performance evidence](docs/performance.md), [references](docs/references.md), [provenance](docs/provenance.md), and the [OSC 2026 self-audit](docs/osc2026-self-audit.md).
+## Scope and limitations
+
+This is sparse, short-range point tracking, not a video runtime. Callers provide decoded grayscale frames. The default tracker assumes local brightness constancy and fixed source gradients. It does not provide dense flow, codecs, capture devices, calibration, rolling-shutter modeling, GPU execution, or a GUI.
 
 ## License
 

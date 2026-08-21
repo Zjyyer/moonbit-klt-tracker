@@ -2,19 +2,114 @@
 package "zjyyer/moonbit-klt-tracker/src/validation"
 
 import {
+  "moonbitlang/core/debug",
   "zjyyer/moonbit-klt-tracker/src/features",
   "zjyyer/moonbit-klt-tracker/src/image",
   "zjyyer/moonbit-klt-tracker/src/klt",
 }
 
 // Values
+pub fn batch_label(BatchValidation) -> String
+
+pub fn batch_validation(Array[Double], Array[Double], Array[Double], Int, ThresholdPolicy) -> Result[BatchValidation, ThresholdError]
+
+pub fn classify(Double, Double, Double, Bool, ValidationConfig) -> Result[RejectionReason?, RejectionReason]
+
+pub fn confidence_score(ValidationSummary) -> Double
+
+pub fn dominant_failure(GateResult) -> String
+
+pub fn evaluate_gate(Array[Double], Array[Double], Array[Double], Array[Double], ThresholdPolicy) -> Result[GateResult, ThresholdError]
+
+pub fn failure_rate(GateResult) -> Double
+
+pub fn finite(Double) -> Bool
+
+pub fn frame_coverage(BatchValidation) -> Double
+
+pub fn merge_batches(BatchValidation, BatchValidation) -> BatchValidation
+
+pub fn merge_gate_results(GateResult, GateResult) -> GateResult
+
+pub fn quality_label(GateResult) -> String
+
+pub fn require_gate(GateResult) -> Result[Unit, ThresholdError]
+
+pub fn summarize_validations(Array[Double], Array[Double], Array[Double], Array[Bool], ValidationConfig) -> Result[ValidationSummary, RejectionReason]
+
 pub fn validate_forward_backward(@image.Pyramid, @image.Pyramid, @features.SeedPoint, @klt.KltObservation, @klt.KltConfig) -> @klt.KltObservation
 
 // Errors
 
 // Types and methods
+pub(all) struct BatchValidation {
+  frame_count : Int
+  observation_count : Int
+  accepted_count : Int
+  rejected_count : Int
+  mean_texture : Double
+  mean_residual : Double
+  mean_round_trip : Double
+  acceptance_rate : Double
+  complete : Bool
+} derive(@debug.Debug)
+
+pub(all) struct GateResult {
+  total : Int
+  passed : Int
+  failed : Int
+  texture_failures : Int
+  residual_failures : Int
+  velocity_failures : Int
+  round_trip_failures : Int
+  acceptance_rate : Double
+  passed_gate : Bool
+} derive(@debug.Debug)
+
+pub(all) enum RejectionReason {
+  NonFinite
+  LowTexture
+  HighResidual
+  ForwardBackwardMismatch
+  OutOfBounds
+  DuplicateFrame
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ThresholdError {
+  InvalidValue
+  EmptyMeasurements
+  LengthMismatch
+  FailedGate
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ThresholdPolicy {
+  minimum_texture : Double
+  maximum_residual : Double
+  maximum_velocity : Double
+  maximum_round_trip : Double
+  minimum_acceptance_rate : Double
+} derive(@debug.Debug)
+pub fn ThresholdPolicy::new(Double, Double, Double, Double, Double) -> Result[Self, ThresholdError]
+
+pub(all) struct ValidationConfig {
+  minimum_texture : Double
+  maximum_residual : Double
+  maximum_round_trip : Double
+} derive(@debug.Debug)
+pub fn ValidationConfig::new(Double, Double, Double) -> Result[Self, RejectionReason]
+
+pub(all) struct ValidationSummary {
+  total : Int
+  accepted : Int
+  rejected : Int
+  non_finite : Int
+  low_texture : Int
+  high_residual : Int
+  round_trip_mismatch : Int
+  out_of_bounds : Int
+  acceptance_rate : Double
+} derive(@debug.Debug)
 
 // Type aliases
 
 // Traits
-

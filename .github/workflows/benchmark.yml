@@ -1,0 +1,16 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: moonbitlang/setup-moonbit@v1
+        with:
+          version: "0.1.20260814"
+      - run: moon bench benchmarks --target wasm-gc --release --deny-warn

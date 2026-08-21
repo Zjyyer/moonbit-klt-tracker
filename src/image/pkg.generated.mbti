@@ -7,14 +7,132 @@ import {
 }
 
 // Values
+pub fn analyze_grid(GrayFrame, Int, Int, Double) -> Array[GridCell]
+
+pub fn apply_photometric(PhotometricModel, Double) -> Result[Double, PhotometricError]
+
+pub fn best_cell(Array[GridCell]) -> GridCell?
+
+pub fn bright_regions(GrayFrame, Double) -> Array[BrightRegion]
+
+pub fn brightness_gain(GrayFrame, GrayFrame) -> Double
+
+pub fn cells_to_points(Array[GridCell]) -> Array[@math.Vec2]
+
+pub fn changed_fraction(FrameMetrics) -> Double
+
+pub fn clip_intensity(Double, Double, Double) -> Double?
+
+pub fn compare_frames(GrayFrame, GrayFrame, Double) -> Result[FrameMetrics, FilterError]
+
+pub fn contrast_gain(GrayFrame, GrayFrame) -> Double
+
+pub fn dilate(GrayFrame, Int, BorderPolicy) -> Result[GrayFrame, FilterError]
+
+pub fn edge_density(GrayFrame, Double) -> Result[Double, FilterError]
+
+pub fn erode(GrayFrame, Int, BorderPolicy) -> Result[GrayFrame, FilterError]
+
+pub fn estimate_photometric(Array[Double], Array[Double]) -> Result[PhotometricModel, PhotometricError]
+
+pub fn extract_patch(GrayFrame, @math.Vec2, Int, Int, BorderPolicy) -> Result[Patch, FrameError]
+
+pub fn frames_are_identical(GrayFrame, GrayFrame) -> Bool
+
+pub fn gradient_magnitude(GrayFrame, BorderPolicy) -> Result[GrayFrame, FilterError]
+
+pub fn grid_contrast_range(Array[GridCell]) -> Double
+
+pub fn grid_mean(Array[GridCell]) -> Double
+
+pub fn grid_quality(Array[GridCell]) -> Double
+
+pub fn intensity_entropy(GrayFrame) -> Double
+
+pub fn largest_region(Array[BrightRegion]) -> BrightRegion?
+
+pub fn normalize_patch(Array[Double]) -> Result[Array[Double], PhotometricError]
+
+pub fn patch_statistics(Array[Double]) -> Result[PatchStatistics, PhotometricError]
+
+pub fn region_area_sum(Array[BrightRegion]) -> Int
+
+pub fn region_density(Array[BrightRegion], Int, Int) -> Double
+
+pub fn region_height(BrightRegion) -> Int
+
+pub fn region_width(BrightRegion) -> Int
+
+pub fn regions_intersect(BrightRegion, BrightRegion) -> Bool
+
+pub fn rescale_patch(Array[Double], Double, Double) -> Result[Array[Double], PhotometricError]
+
+pub fn threshold(GrayFrame, Double) -> Result[GrayFrame, FilterError]
+
+pub fn tile_area(Tile) -> Int
+
+pub fn tile_center(Tile) -> @math.Vec2
+
+pub fn tile_contrast(GrayFrame, Tile) -> Double
+
+pub fn tile_count(Int, Int, Int, Int) -> Int
+
+pub fn tile_for_point(Array[Tile], Int, Int) -> Tile?
+
+pub fn tile_mean(GrayFrame, Tile) -> Double
+
+pub fn tile_neighbors(Array[Tile], Tile) -> Array[Tile]
+
+pub fn tile_quality(GrayFrame, Tile, Double) -> Bool
+
+pub fn tiles(Int, Int, Int, Int) -> Array[Tile]
+
+pub fn tiles_cover_area(Array[Tile], Int, Int) -> Int
+
+pub fn usable_cells(Array[GridCell]) -> Array[GridCell]
 
 // Errors
 
 // Types and methods
+pub(all) enum BorderPolicy {
+  Reject
+  Clamp
+  Reflect
+  Wrap
+} derive(Eq, @debug.Debug)
+
+pub(all) struct BrightRegion {
+  minimum_x : Int
+  minimum_y : Int
+  maximum_x : Int
+  maximum_y : Int
+  area : Int
+  mean_intensity : Double
+} derive(@debug.Debug)
+
+pub(all) enum FilterError {
+  InvalidKernel
+  InvalidDivisor
+  NonFiniteKernel
+  EmptyFrame
+} derive(Eq, @debug.Debug)
+
 pub(all) enum FrameError {
   InvalidDimensions
   InvalidPixelLength(expected~ : Int, actual~ : Int)
 } derive(Eq, @debug.Debug)
+
+pub(all) struct FrameMetrics {
+  mean_absolute_error : Double
+  mean_squared_error : Double
+  peak_signal_to_noise : Double?
+  changed_pixel_count : Int
+  changed_ratio : Double
+  source_mean : Double
+  target_mean : Double
+  source_contrast : Double
+  target_contrast : Double
+} derive(@debug.Debug)
 
 pub(all) struct GradientFrame {
   width : Int
@@ -29,8 +147,74 @@ pub(all) struct GrayFrame {
   height : Int
   pixels : Array[Byte]
 } derive(@debug.Debug)
+pub fn GrayFrame::add_bias(Self, Int) -> Self
+pub fn GrayFrame::blend(Self, Self, Double) -> Result[Self, FrameError]
+pub fn GrayFrame::contrast(Self) -> Double
+pub fn GrayFrame::convolve(Self, Kernel, BorderPolicy) -> Result[Self, FilterError]
+pub fn GrayFrame::crop(Self, Int, Int, Int, Int) -> Result[Self, FrameError]
+pub fn GrayFrame::difference(Self, Self) -> Result[Self, FrameError]
+pub fn GrayFrame::histogram(Self) -> Array[Int]
+pub fn GrayFrame::invert(Self) -> Self
+pub fn GrayFrame::mean_intensity(Self) -> Double
 pub fn GrayFrame::new(Int, Int, Array[Byte]) -> Result[Self, FrameError]
+pub fn GrayFrame::sample(Self, @math.Vec2, BorderPolicy) -> Double?
 pub fn GrayFrame::sample_bilinear(Self, @math.Vec2) -> Double?
+
+pub(all) struct GridCell {
+  index : Int
+  tile : Tile
+  mean : Double
+  contrast : Double
+  edge_density : Double
+  usable : Bool
+} derive(@debug.Debug)
+
+pub(all) struct Kernel {
+  width : Int
+  height : Int
+  values : Array[Double]
+  divisor : Double
+} derive(@debug.Debug)
+pub fn Kernel::box_blur(Int) -> Result[Self, FilterError]
+pub fn Kernel::gaussian_3x3() -> Self
+pub fn Kernel::new(Int, Int, Array[Double], Double) -> Result[Self, FilterError]
+pub fn Kernel::sobel_x() -> Self
+pub fn Kernel::sobel_y() -> Self
+
+pub(all) struct Patch {
+  width : Int
+  height : Int
+  center : @math.Vec2
+  values : Array[Double]
+} derive(@debug.Debug)
+pub fn Patch::at(Self, Int, Int) -> Double?
+pub fn Patch::mean(Self) -> Double
+pub fn Patch::variance(Self) -> Double
+
+pub(all) struct PatchStatistics {
+  count : Int
+  minimum : Double
+  maximum : Double
+  mean : Double
+  variance : Double
+  standard_deviation : Double
+  dynamic_range : Double
+} derive(@debug.Debug)
+
+pub(all) enum PhotometricError {
+  EmptyPatch
+  LengthMismatch
+  NonFiniteValue
+  ConstantSource
+  NonFiniteResult
+} derive(Eq, @debug.Debug)
+
+pub(all) struct PhotometricModel {
+  gain : Double
+  bias : Double
+  correlation : Double
+  error : Double
+} derive(@debug.Debug)
 
 pub(all) struct Pyramid {
   levels : Array[GrayFrame]
@@ -44,7 +228,14 @@ pub(all) enum PyramidError {
   InsufficientDimensions(level~ : Int, width~ : Int, height~ : Int)
 } derive(Eq, @debug.Debug)
 
+pub(all) struct Tile {
+  index : Int
+  left : Int
+  top : Int
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+
 // Type aliases
 
 // Traits
-

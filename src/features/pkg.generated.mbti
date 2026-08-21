@@ -10,6 +10,16 @@ import {
 // Values
 pub fn detect_shi_tomasi(@image.GrayFrame, FeatureConfig) -> Result[Array[SeedPoint], FeatureError]
 
+pub fn grid_occupancy(Array[SeedPoint], Double) -> Result[Int, ScoreError]
+
+pub fn score_percentile(Array[SeedPoint], Double) -> Result[Double, ScoreError]
+
+pub fn score_summary(Array[SeedPoint], Int, Int) -> Result[ScoreSummary, ScoreError]
+
+pub fn select_seeds(Array[SeedPoint], SelectionConfig) -> Result[Array[SeedPoint], SelectionError]
+
+pub fn suppress_by_radius(Array[SeedPoint], Double) -> Result[Array[SeedPoint], ScoreError]
+
 pub fn validate_seeds(@image.GrayFrame, Array[SeedPoint]) -> Result[Array[SeedPoint], FeatureError]
 
 // Errors
@@ -31,12 +41,40 @@ pub(all) enum FeatureError {
   SeedOutsideFrame(index~ : Int)
 } derive(Eq, @debug.Debug)
 
+pub(all) enum ScoreError {
+  Empty
+  NonFinite
+  InvalidRadius
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ScoreSummary {
+  count : Int
+  minimum : Double
+  maximum : Double
+  mean : Double
+  median : Double
+  density : Double
+} derive(@debug.Debug)
+
 pub(all) struct SeedPoint {
   position : @math.Vec2
   score : Double
 } derive(@debug.Debug)
 
+pub(all) struct SelectionConfig {
+  maximum_features : Int
+  minimum_distance : Double
+  minimum_score : Double
+} derive(@debug.Debug)
+pub fn SelectionConfig::new(Int, Double, Double) -> Result[Self, SelectionError]
+
+pub(all) enum SelectionError {
+  InvalidMaximum
+  InvalidDistance
+  InvalidScore
+  NonFiniteScore
+} derive(Eq, @debug.Debug)
+
 // Type aliases
 
 // Traits
-
