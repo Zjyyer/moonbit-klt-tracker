@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/env",
   "moonbitlang/x/sys",
   "Zjyyer/moonbit-klt-tracker/src/cli_core",
 }
