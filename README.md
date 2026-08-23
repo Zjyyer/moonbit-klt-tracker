@@ -16,12 +16,12 @@
 ## Quick start
 
 ```sh
-moon run src/cli -- detect --manifest tests/fixtures/occlusion/manifest.json
-moon run src/cli -- inspect --manifest tests/fixtures/occlusion/manifest.json
-moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --json trajectory.json --csv trajectory.csv
+moon run src/cli -- detect --manifest tests/fixtures/translation-large/manifest.json
+moon run src/cli -- inspect --manifest tests/fixtures/translation-large/manifest.json
+moon run src/cli -- track --manifest tests/fixtures/translation-large/manifest.json --json trajectory.json --csv trajectory.csv
 ```
 
-The manifest contains a `frames` array. Frames must share dimensions and contain byte-valued grayscale `pixels`. `detect` prints a count, `inspect` prints a deterministic report, and `track` writes only the requested JSON/CSV outputs. Duplicate flags, unknown flags, missing manifests, and invalid output combinations are rejected.
+The manifest contains a `frames` array. Frames must share dimensions and contain byte-valued grayscale `pixels`. `detect` prints a count, `inspect` prints a deterministic report, and `track` writes only the requested JSON/CSV outputs. The checked-in translation fixture produces both active and lost observations, making the lifecycle result visible in a minimal end-to-end run. Duplicate flags, unknown flags, missing manifests, and invalid output combinations are rejected.
 
 ## Package map
 

@@ -205,3 +205,21 @@ test "native CLI flow matches the checked-in occlusion golden output" {
   )
   @fs.remove_file(output)
 }
+
+///|
+test "native CLI flow exposes active tracks in the larger translation fixture" {
+  let output = "tests/fixtures/translation-large/cli-golden-output.json"
+  @fs.remove_file(output) catch {
+    _ => ()
+  }
+  let exit_code = run_cli_from_files([
+    "track", "--manifest", "tests/fixtures/translation-large/manifest.json", "--json",
+    output,
+  ])
+  assert_eq(exit_code, 0)
+  assert_eq(
+    @fs.read_file_to_bytes(output),
+    @fs.read_file_to_bytes("tests/fixtures/translation-large/expected.json"),
+  )
+  @fs.remove_file(output)
+}

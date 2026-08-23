@@ -16,12 +16,12 @@
 ## 快速开始
 
 ```sh
-moon run src/cli -- detect --manifest tests/fixtures/occlusion/manifest.json
-moon run src/cli -- inspect --manifest tests/fixtures/occlusion/manifest.json
-moon run src/cli -- track --manifest tests/fixtures/occlusion/manifest.json --json trajectory.json --csv trajectory.csv
+moon run src/cli -- detect --manifest tests/fixtures/translation-large/manifest.json
+moon run src/cli -- inspect --manifest tests/fixtures/translation-large/manifest.json
+moon run src/cli -- track --manifest tests/fixtures/translation-large/manifest.json --json trajectory.json --csv trajectory.csv
 ```
 
-清单包含 `frames` 数组；每帧尺寸必须一致，`pixels` 必须是字节值。`detect` 输出数量，`inspect` 输出确定性报告，`track` 只写入指定的 JSON/CSV 输出。重复参数、未知参数、缺少清单和无效输出组合都会被拒绝。
+清单包含 `frames` 数组；每帧尺寸必须一致，`pixels` 必须是字节值。`detect` 输出数量，`inspect` 输出确定性报告，`track` 只写入指定的 JSON/CSV 输出。仓库内的平移夹具会在最小端到端运行中同时展示 active 和 lost 轨迹状态。重复参数、未知参数、缺少清单和无效输出组合都会被拒绝。
 
 ## 包结构
 

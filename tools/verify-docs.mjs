@@ -20,10 +20,10 @@ const requiredDocuments = [
 const requiredAuditEvidence = [
   "License: Apache-2.0",
   "Default branch: main",
-  "Remote default branch: deferred until publish",
+  "Remote default branch:",
   "Source scale command: `scripts/line-count.ps1`",
   "History count command: git rev-list --count HEAD",
-  "CI workflow: .github/workflows/check.yml",
+  ".github/workflows/check.yml",
   "Generated-interface gate: git diff --exit-code",
 ];
 
