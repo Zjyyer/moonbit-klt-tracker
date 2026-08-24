@@ -1,6 +1,6 @@
 name = "Zjyyer/moonbit-klt-tracker"
 
-version = "0.1.2"
+version = "0.1.3"
 
 readme = "README.md"
 
@@ -21,5 +21,5 @@ preferred_target = "wasm-gc"
 description = "Deterministic sparse KLT feature tracking for grayscale frame buffers."
 
 import {
-  "moonbitlang/x@0.4.46",
+  "moonbitlang/x@0.5.1",
 }
