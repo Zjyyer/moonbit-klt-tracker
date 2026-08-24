@@ -7,3 +7,9 @@ coverage.lcov
 tests/fixtures/local/
 tests/fixtures/output/
 .worktrees/
+
+# Local planning and review notes; never include these in the public repository.
+/findings.md
+/progress.md
+/task_plan.md
+/docs/superpowers/plans/2026-08-21-hackathon-acceptance.md

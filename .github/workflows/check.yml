@@ -24,7 +24,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1
         with:
-          version: "0.1.20260814"
+          # moonc v0.10.9 (moon 0.1.20260819)
+          version: "0.1.20260819"
       - run: node --test tools/verify-docs.test.mjs
       - run: node tools/verify-docs.mjs
       - run: moon fmt --check

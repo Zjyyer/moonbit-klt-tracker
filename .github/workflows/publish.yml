@@ -10,7 +10,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: moonbitlang/setup-moonbit@v1
         with:
-          version: "0.1.20260814"
+          # moonc v0.10.9 (moon 0.1.20260819)
+          version: "0.1.20260819"
       - run: moon publish
         env:
           MOONCAKES_TOKEN: ${{ secrets.MOONCAKES_TOKEN }}
